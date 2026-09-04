@@ -30,3 +30,6 @@ logs/
 content/keywords.json
 # build:config가 생성한다 (src/data + content/keywords.json → public/config.json)
 public/config.json
+
+# 서브에이전트 격리 워크트리 (git add -A에 딸려 들어가면 안 된다)
+.claude/worktrees/
