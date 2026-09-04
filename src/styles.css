@@ -1,0 +1,17 @@
+@import "tailwindcss";
+/* 아이콘 단일 표준: Flaticon UIcons Regular Rounded (`fi fi-rr-*`)는 src/main.ts에서
+   별도 모듈로 import한다. 여기서 @import하면 Tailwind가 먼저 인라인해 버려
+   vite.config.ts의 woff2-only 변환이 그 파일을 보지 못한다. */
+
+@theme {
+  --color-codex-gold: #d4af37;
+  --color-codex-amber: #f59e0b;
+  --color-codex-slate: #1e293b;
+  --font-sans:
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+}
+
+html {
+  word-break: keep-all;
+}

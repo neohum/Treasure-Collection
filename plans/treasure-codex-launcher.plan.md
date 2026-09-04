@@ -170,8 +170,10 @@ dist/
 ## Verification
 - Tier 1: `pnpm typecheck` (tsc --noEmit), `pnpm lint` (eslint)
 - Tier 2: `pnpm test` (vitest + fake-indexeddb), `pnpm e2e` (Playwright, chromium)
-- Tier 3: `pnpm build && pnpm preview`를 실제 Chrome에서 열어 PWA 설치·오프라인·인쇄·전송을
-  확인하고 크롬북 해상도 스크린샷을 `evidence/<날짜>-<카드>/`에 남긴다. all_market 허브에
+- Tier 3: production 빌드(`pnpm build`)를 `pnpm preview`로 실행(runtime launch)해 실제
+  Chrome에서 열고 PWA 설치·오프라인·인쇄·전송을 확인한 뒤, 크롬북 해상도 스크린샷을
+  `evidence/<날짜>-<카드>/`에 남긴다. 카드마다 `deliverable-preview.json`(빌드 로그·준비
+  상태·pid 정리·스크린샷)과 `brand-assets.json`이 함께 남는다. all_market 허브에
   번들을 반입해 `/dist/treasure-codex/`에서 열리고 [전송]이 201을 받는 것은 all_market
   계획서의 Step 4·5 증거로 교차 확인한다.
 

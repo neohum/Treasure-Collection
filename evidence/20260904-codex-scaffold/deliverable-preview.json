@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "codex-scaffold",
+  "productionBuild": {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/index.html",
+    "log": "evidence/20260904-codex-scaffold/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4179/",
+    "readyMethod": "HTTP GET / (curl, 1초 폴링)",
+    "readyStatus": 200,
+    "process": {
+      "pid": 15534,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260904-codex-scaffold/screenshot-chromebook-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

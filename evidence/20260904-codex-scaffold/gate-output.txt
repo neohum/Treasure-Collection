@@ -1,0 +1,171 @@
+$ pnpm lint
+> treasure-codex@0.1.0 lint D:\works\Treasure-Collection
+> eslint .
+
+
+$ pnpm typecheck
+> tsc --noEmit -p tsconfig.json
+
+
+$ pnpm test
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  11:36:05
+   Duration  135ms (transform 47%, import 34%, worker 11%, tests 7%)
+
+
+$ pnpm build
+dist/index.html                                               0.87 kB │ gzip:  0.52 kB
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-CwJkfPFU.css                              185.47 kB │ gzip: 36.18 kB
+dist/assets/index-MS9Ni0q5.js                                 1.10 kB │ gzip:  0.62 kB
+[32m✓ built in 217ms[39m
+
+$ find dist -type f
+dist/apple-touch-icon.png
+dist/assets/index-CwJkfPFU.css
+dist/assets/index-MS9Ni0q5.js
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2
+dist/favicon.ico
+dist/favicon.svg
+dist/icons/apple-touch-icon.png
+dist/icons/icon-192.png
+dist/icons/icon-512.png
+dist/icons/icon-maskable.png
+dist/icons/og-image.png
+dist/index.html
+dist/logo.svg
+dist/og-image.png
+
+$ disallowed extensions:
+(none)
+
+$ ls legacy
+apple-touch-icon.png
+code_artifact.html
+docs
+favicon.ico
+favicon.svg
+icons
+index.html
+logo.svg
+manifest.json
+manifest.webmanifest
+og-image.png
+package.json
+README.md
+scripts
+sw.js
+
+$ bash scripts/loop/health.sh
+[1m▶ e2e: pnpm run e2e[0m
+
+> treasure-codex@0.1.0 e2e D:\works\Treasure-Collection
+> playwright test
+
+[WebServer] error when starting preview server:
+[WebServer] Error: Port 4173 is already in use
+[WebServer]     at httpServerStart (file:///D:/works/Treasure-Collection/node_modules/.pnpm/vite@8.2.2_@types+node@24.1_0787f5b1f4a0fe6324364d8402a1d1c8/node_modules/vite/dist/node/chunks/node.js:11681:10)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async preview (file:///D:/works/Treasure-Collection/node_modules/.pnpm/vite@8.2.2_@types+node@24.1_0787f5b1f4a0fe6324364d8402a1d1c8/node_modules/vite/dist/node/chunks/node.js:35870:2)
+[WebServer]     at async CAC.<anonymous> (file:///D:/works/Treasure-Collection/node_modules/.pnpm/vite@8.2.2_@types+node@24.1_0787f5b1f4a0fe6324364d8402a1d1c8/node_modules/vite/dist/node/cli.js:807:18)
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+ ELIFECYCLE  Command failed with exit code 1.
+[31m✗ e2e failed[0m
+$ pnpm e2e
+
+> treasure-codex@0.1.0 e2e D:\works\Treasure-Collection
+> playwright test
+
+Error: Timed out waiting 120000ms from config.webServer.
+
+ ELIFECYCLE  Command failed with exit code 1.
+
+$ bash scripts/loop/health.sh
+
+[32m✓ test[0m
+
+[1m▶ e2e: pnpm run e2e[0m
+
+> treasure-codex@0.1.0 e2e D:\works\Treasure-Collection
+> playwright test
+
+Error: Timed out waiting 120000ms from config.webServer.
+
+ ELIFECYCLE  Command failed with exit code 1.
+[31m✗ e2e failed[0m
+
+=== 재실행 (host 127.0.0.1 고정 후) ===
+$ pnpm e2e
+> playwright test
+
+
+Running 1 test using 1 worker
+
+  ok 1 [chromebook] › tests\e2e\smoke.spec.ts:3:1 › production 빌드가 열리고 아이콘 폰트가 로드된다 (1.1s)
+
+  1 passed (5.1s)
+
+$ bash scripts/loop/health.sh
+[1m▶ build: pnpm run build[0m
+✓ 6 modules transformed.
+[32m✓ built in 217ms[39m
+[32m✓ build[0m
+[1m▶ lint: pnpm run lint[0m
+[32m✓ lint[0m
+[1m▶ typecheck: pnpm run typecheck[0m
+[32m✓ typecheck[0m
+[1m▶ test: pnpm test[0m
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+[32m✓ test[0m
+[1m▶ e2e: pnpm run e2e[0m
+  1 passed (4.7s)
+[32m✓ e2e[0m
+[1m▶ behavior-spec: node scripts/loop/behavior-spec.ts check[0m
+[32m✓ behavior-spec[0m
+[1m▶ version-sync: node scripts/loop/version-sync.ts check[0m
+[32m✓ version-sync[0m
+[1m▶ brand-assets: node scripts/loop/brand-assets.ts verify[0m
+[31m✗ brand-assets failed[0m
+
+=== 브랜드 자산 게이트 포함 재실행 ===
+$ EVIDENCE_DIR=evidence/20260904-codex-scaffold pnpm e2e
+
+  ok 1 [chromebook] › tests\e2e\smoke.spec.ts:3:1 › production 빌드가 열리고 아이콘 폰트가 로드된다 (1.1s)
+
+  1 passed (5.7s)
+
+$ node scripts/loop/brand-assets.ts verify
+brand assets: verified evidence/20260904-codex-scaffold/brand-assets.json
+
+$ bash scripts/loop/health.sh
+✓ 6 modules transformed.
+[32m✓ built in 442ms[39m
+[32m✓ build[0m
+[32m✓ lint[0m
+[32m✓ typecheck[0m
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+[32m✓ test[0m
+  1 passed (5.2s)
+[32m✓ e2e[0m
+[32m✓ behavior-spec[0m
+[32m✓ version-sync[0m
+[32m✓ brand-assets[0m
+deliverable preview: blocked
+[31m✗ deliverable-preview failed[0m
+✓ 6 modules transformed.
+[32m✓ built in 315ms[39m
+[32m✓ build[0m
+[32m✓ lint[0m
+[32m✓ typecheck[0m
+[32m✓ test[0m
+[32m✓ e2e[0m
+[32m✓ behavior-spec[0m
+[32m✓ version-sync[0m
+[32m✓ brand-assets[0m
+[32m✓ deliverable-preview[0m
+[32m✓ health: all gates passed (multi-layer verification complete)[0m

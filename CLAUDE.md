@@ -51,21 +51,28 @@ Read·검색·셸 확인은 한 턴에 묶는다. **절감은 라우팅·배칭�
 - **지식베이스 자동 기록**: 세션 완료 전 작업 요약을 `node scripts/loop/knowledge.ts add`로 기록.
 - **플랫폼별 빌드(특히 Wails)**: [`docs/harness-conventions.md`](docs/harness-conventions.md).
 
-## Project facts (fill these in)
+## Project facts
 
-- **Stack:** _e.g. Next.js 16, React 19, TypeScript, Postgres_
-- **Package manager:** _pnpm | npm | yarn_
-- **Entry points:** _e.g. `app/(routes)`, `lib/server`_
-- **Test runner:** _e.g. `pnpm test` (vitest)_
-- **Lint / typecheck:** _e.g. `pnpm typecheck`_
-- **Dev server:** _e.g. `pnpm dev` on http://localhost:3000_
-- **Deploy:** _e.g. Railway via `git push`_
+- **Stack:** TypeScript 5.9(프레임워크 없음, DOM API 직접) + Vite 8 + Tailwind v4(`@tailwindcss/vite`) + Flaticon UIcons. 서버 없음, 정적 PWA 번들.
+- **Package manager:** pnpm 10 (`packageManager` 필드 고정)
+- **Entry points:** `index.html` → `src/main.ts`; 도메인은 `src/core/`, 화면은 `src/ui/`, 빌드 CLI는 `scripts/*.ts`
+- **Test runner:** `pnpm test` (vitest, node 환경, `tests/*.test.ts`) / `pnpm e2e` (Playwright, `tests/e2e/`, production preview 상대)
+- **Lint / typecheck:** `pnpm lint` (eslint flat config, `innerHTML` 금지 규칙 포함) / `pnpm typecheck` (tsc --noEmit)
+- **Dev server:** `pnpm dev` → http://localhost:5173 ; production 미리보기 `pnpm build && pnpm preview` → http://127.0.0.1:4179
+- **Bundle:** `pnpm pack:bundle` → `dist/` + `dist/manifest.json` (all_market 허브 반입용, 허용 확장자 12종만)
+- **Deploy:** GitHub Pages(main 머지 시, Google Classroom 링크용) + all_market 런처 반입(교실 LAN)
 
-## Domain glossary (fill these in)
+## Domain glossary
 
-| Term  | Meaning                       |
-| ----- | ----------------------------- |
-| _foo_ | _what foo means in this repo_ |
+| Term | Meaning |
+| --- | --- |
+| 보물도감 / codex | 유물 20종을 시대별로 모으는 학생 화면. 도구 ID `treasure-codex` |
+| 해금(unlock) | 잠긴 유물 카드를 열기. `keyword`(핵심어 입력, 해시 대조) 또는 `photo`(교사가 배부한 사진 업로드) |
+| 핵심어(keyword) | 수업 중 배운 정답 단어. 평문은 `content/keywords.json`(gitignore), 번들에는 정규화 후 SHA-256만 |
+| 전송(submit) | 허브 경로(`/dist/{toolID}/`)에서 진도 요약을 `POST /api/tools/{toolID}/submissions`로 보내는 것. 사진은 절대 포함하지 않는다 |
+| 허브(hub) | all_market 구름학교 런처 안의 교실 LAN 웹서버. 교사 PC 사설 IP에만 바인딩 |
+| 번들(bundle) | `dist/` 전체 + `manifest.json`(`ToolDistributionManifest`). 허브가 그대로 반입·서빙 |
+| 학생 라벨(studentLabel) | 학생이 스스로 적는 번호 또는 이름(1~20자). 번호 권장. PC 밖으로 나가지 않는다 |
 
 ## See also
 

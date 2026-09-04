@@ -1,0 +1,43 @@
+{
+  "name": "treasure-codex",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "5학년 역사 디지털 보물도감 — 크롬북 PWA, all_market 교실 허브 번들",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4179 --strictPort",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "build:config": "tsx scripts/build-config.ts",
+    "pack:bundle": "tsx scripts/pack-bundle.ts"
+  },
+  "dependencies": {
+    "@flaticon/flaticon-uicons": "3.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/node": "^24.0.0",
+    "eslint": "^10.9.1",
+    "fake-indexeddb": "6.2.5",
+    "jsdom": "^28.0.0",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.60.0",
+    "vite": "8.2.2",
+    "vitest": "5.0.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "packageManager": "pnpm@10.33.0"
+}
