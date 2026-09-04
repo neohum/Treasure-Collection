@@ -1,0 +1,27 @@
+$ pnpm test
+
+ Test Files  8 passed (8)
+      Tests  26 passed (26)
+   Start at  15:40:44
+   Duration  274ms (transform 43%, import 38%, tests 12%, worker 6%)
+
+
+$ pnpm build:config
+config.json 생성: 유물 20종, 핵심어 출처 src/data/keywords.example.json (예시)
+
+$ bash scripts/loop/health.sh
+✓ 6 modules transformed.
+[32m✓ built in 1.05s[39m
+[32m✓ build[0m
+[32m✓ lint[0m
+[32m✓ typecheck[0m
+[32m✓ test[0m
+[32m✓ e2e[0m
+[1m▶ cli-smoke: bash -c node scripts/route.ts "health check"[0m
+  task:  health check
+[32m✓ cli-smoke[0m
+[32m✓ behavior-spec[0m
+[32m✓ version-sync[0m
+[32m✓ brand-assets[0m
+[32m✓ deliverable-preview[0m
+[32m✓ health: all gates passed (multi-layer verification complete)[0m
