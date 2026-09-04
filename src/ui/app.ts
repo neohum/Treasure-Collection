@@ -4,9 +4,11 @@ import { toIsoWithOffset, formatLocal } from "../core/time";
 import { checkKeyword } from "../core/unlock";
 import { exportProgress, importProgress, ImportError } from "../core/export";
 import { LIMITS, type CodexConfig, type EraCategory, type Treasure, type UnlockRecord } from "../core/types";
+import { detectHub, type HubContext } from "../core/hub";
 import { renderCard } from "./card";
 import { append, clear, h, icon } from "./dom";
 import { button, closeModal, confirmModal, openModal } from "./modals";
+import { openSubmitModal } from "./submit";
 import { showToast } from "./toast";
 
 /**
@@ -20,6 +22,9 @@ export class CodexApp {
   private expanded = new Set<string>();
   private objectUrls: string[] = [];
   private justUnlocked: string | null = null;
+  private pendingCount = 0;
+  /** 허브(/dist/{toolID}/)에서 열렸을 때만 존재. 없으면 [전송] 대신 [내보내기]. */
+  private readonly hub: HubContext | null;
 
   private readonly root: HTMLElement;
   private constructor(
@@ -28,6 +33,7 @@ export class CodexApp {
     root: HTMLElement,
   ) {
     this.root = root;
+    this.hub = detectHub(window.location);
     for (const era of config.eras) this.expanded.add(era.id);
   }
 
@@ -45,6 +51,20 @@ export class CodexApp {
   private async reload(): Promise<void> {
     this.progress = new Map((await this.store.getAllProgress()).map((r) => [r.id, r]));
     this.studentLabel = (await this.store.getMeta()).studentLabel;
+    this.pendingCount = (await this.store.listQueue()).length;
+  }
+
+  private openSubmit(): void {
+    if (!this.hub) return;
+    openSubmitModal({
+      store: this.store,
+      hub: this.hub,
+      toolId: this.config.toolId,
+      total: this.total,
+      getLabel: () => this.studentLabel,
+      getRecords: () => [...this.progress.values()],
+      onDone: () => void this.reload().then(() => this.render()),
+    });
   }
 
   // ───────────────────────── render ─────────────────────────
@@ -86,7 +106,16 @@ export class CodexApp {
           { class: "flex items-center gap-2 flex-wrap no-print" },
           h("label", { class: "label-wrap" }, icon("id-badge", "text-amber-400"), labelInput),
           h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => window.print(), title: "도감 출력" }, icon("print"), h("span", { class: "hidden sm:inline" }, "도감 출력")),
-          h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", { class: "hidden sm:inline" }, "내보내기")),
+          // 허브에서 열렸으면 [전송], 아니면(GitHub Pages·로컬) 같은 자리의 버튼이 [내보내기]가 된다.
+          this.hub
+            ? h(
+                "button",
+                { type: "button", class: "btn btn-primary btn-sm", onclick: () => this.openSubmit(), title: "선생님께 전송", id: "btn-submit", "data-pending": String(this.pendingCount) },
+                icon("paper-plane"),
+                h("span", {}, "전송"),
+                this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `아직 전송되지 않은 기록 ${this.pendingCount}건`) : null,
+              )
+            : h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
           h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => this.importJson(), title: "가져오기", id: "btn-import" }, icon("upload"), h("span", { class: "hidden sm:inline" }, "가져오기")),
           h("button", { type: "button", class: "btn btn-danger-ghost btn-sm", onclick: () => void this.reset(), title: "초기화", "aria-label": "초기화", id: "btn-reset" }, icon("rotate-right")),
         ),

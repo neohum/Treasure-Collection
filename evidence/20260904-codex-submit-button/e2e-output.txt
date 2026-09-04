@@ -1,0 +1,20 @@
+
+> treasure-codex@0.1.0 e2e D:\works\Treasure-Collection
+> playwright test
+
+
+Running 11 tests using 3 workers
+
+  ok  1 [chromebook] › tests\e2e\smoke.spec.ts:3:1 › production 빌드가 열리고 아이콘 폰트가 로드된다 (967ms)
+  ok  2 [chromebook] › tests\e2e\codex.spec.ts:22:3 › 보물도감 화면 › 핵심어 입력으로 해금되고 오답은 거부된다 (AC-1) (1.3s)
+  ok  3 [chromebook] › tests\e2e\submit.spec.ts:31:3 › 전송 버튼 › 허브 경로에서 [전송]이 계약 본문을 POST하고 영수증을 보여 준다 (AC-1, AC-4) (2.0s)
+  ok  4 [chromebook] › tests\e2e\codex.spec.ts:43:3 › 보물도감 화면 › 사진 등록으로 해금되고 새로고침 후에도 유지된다 (AC-2) (964ms)
+  ok  6 [chromebook] › tests\e2e\codex.spec.ts:65:3 › 보물도감 화면 › 아이콘은 전부 fi fi-rr이며 FontAwesome·이모지·인라인 SVG 아이콘이 없다 (AC-3) (555ms)
+  ok  5 [chromebook] › tests\e2e\submit.spec.ts:69:3 › 전송 버튼 › 허브가 응답하지 못하면 큐에 남고 다음 [전송]에서 재시도된다 (AC-2) (1.4s)
+  ok  7 [chromebook] › tests\e2e\codex.spec.ts:85:3 › 보물도감 화면 › 학생 소감은 HTML로 해석되지 않는다 (AC-4) (857ms)
+  ok  8 [chromebook] › tests\e2e\submit.spec.ts:107:3 › 전송 버튼 › 허브 경로가 아니면 같은 자리의 버튼이 [내보내기]가 되고 JSON을 내려받는다 (AC-3) (968ms)
+  ok 10 [chromebook] › tests\e2e\submit.spec.ts:125:3 › 전송 버튼 › 번호가 비어 있으면 전송 버튼이 막히고 안내가 뜬다 (AC-5) (688ms)
+  ok  9 [chromebook] › tests\e2e\codex.spec.ts:99:3 › 보물도감 화면 › 크롬북·데스크톱·모바일 뷰포트 스크린샷과 인쇄 레이아웃 (AC-5, AC-6) (1.4s)
+  ok 11 [chromebook] › tests\e2e\codex.spec.ts:125:3 › 보물도감 화면 › 초기화하면 모든 기록이 사라진다 (674ms)
+
+  11 passed (11.5s)
