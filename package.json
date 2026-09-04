@@ -8,7 +8,7 @@
     "dev": "vite",
     "prebuild": "tsx scripts/build-config.ts",
     "build": "vite build",
-    "preview": "vite preview --port 4179 --strictPort",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run",

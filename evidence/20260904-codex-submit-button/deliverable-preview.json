@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "codex-submit-button",
+  "productionBuild": {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/index.html",
+    "log": "evidence/20260904-codex-submit-button/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4181/",
+    "readyMethod": "HTTP GET / (curl, 1초 폴링) + Playwright 11건(허브 경로 /dist/treasure-codex/ 시뮬레이션 포함)",
+    "readyStatus": 200,
+    "process": {
+      "pid": 39983,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260904-codex-submit-button/submit-receipt-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

@@ -45,8 +45,9 @@ export default defineConfig({
     },
   },
   // Windows에서 "localhost"는 ::1(IPv6)에만 붙어 Playwright의 127.0.0.1 대기가 영원히 끝나지 않는다.
+  // PREVIEW_PORT로 바꿀 수 있다 — 워크트리 여러 개가 동시에 e2e를 돌릴 때 서로의 preview를 집지 않도록.
   server: { host: "127.0.0.1", port: 5173, strictPort: true },
-  preview: { host: "127.0.0.1", port: 4179, strictPort: true },
+  preview: { host: "127.0.0.1", port: Number(process.env["PREVIEW_PORT"] ?? 4179), strictPort: true },
   test: {
     include: ["tests/**/*.test.ts"],
     exclude: ["tests/e2e/**", "node_modules/**", "legacy/**"],

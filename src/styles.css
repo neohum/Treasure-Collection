@@ -58,6 +58,7 @@ html {
 .badge-era { @apply bg-amber-500 text-slate-950 rounded absolute top-2 left-2 shadow; }
 .badge-done { @apply bg-emerald-500 text-white absolute top-2 right-2 shadow; }
 .badge-count { @apply bg-amber-100 text-amber-800 text-[11px] rounded ml-2; }
+.badge-pending { @apply bg-red-600 text-white ml-1; }
 
 /* ── 시대 탭/섹션 ─────────────────────────────────────────── */
 .tabs { @apply flex items-center gap-2 overflow-x-auto pb-2; }
