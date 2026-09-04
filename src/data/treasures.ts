@@ -30,7 +30,7 @@ export const ERAS: EraCategory[] = [
   {
     id: "unified_silla_balhae",
     name: "통일신라 및 발해",
-    icon: "landmark",
+    icon: "monument",
     description: "찬란한 불교 예술과 해동성국 발해의 자부심",
     treasures: [
       { id: "art_10", era: "통일신라", name: "석굴암 본존불", hint: "신라 건축과 조각 예술의 정수가 집약된 인공 석굴 사원입니다.", description: "빛과 수학적 비율이 완벽히 조화된 통일신라 불교 조각의 대걸작입니다." },

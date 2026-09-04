@@ -1,0 +1,15 @@
+/* 도감 출력: 플로터 출력물을 대신하는 A4 포트폴리오. no-print 요소는 숨기고 모든 시대를 펼친다. */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  html, body { background: #fff !important; }
+  .no-print { display: none !important; }
+  .app-header { position: static !important; box-shadow: none !important; background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .app-main { margin-top: 8mm; max-width: none; padding: 0; }
+  .era-content { display: block !important; }
+  .era-head { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .era, .card { break-inside: avoid; page-break-inside: avoid; }
+  .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6mm; }
+  .card-unlocked { box-shadow: none !important; transform: none !important; }
+  .card-media { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card-locked { min-height: 0; }
+}

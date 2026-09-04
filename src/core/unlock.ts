@@ -1,18 +1,24 @@
 import { normalizeKeyword } from "./normalize";
+import { sha256Hex } from "./sha256";
 import type { CodexConfig } from "./types";
 
 function toHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/** WebCrypto가 있으면 그것을, 없으면(비보안 HTTP 원점) 순수 JS 구현을 쓴다. */
+export async function sha256HexOf(data: Uint8Array): Promise<string> {
+  const subtle = globalThis.crypto?.subtle;
+  if (subtle) return toHex(await subtle.digest("SHA-256", data as BufferSource));
+  return sha256Hex(data);
+}
+
 /**
  * 핵심어 해시. 번들은 정적 파일이라 학생이 소스를 볼 수 있으므로 평문 대신 해시를 담는다.
  * 완전한 비밀은 아니지만(사전 대입 가능) "소스 보기로 답을 읽는" 수준은 막는다.
- * 브라우저와 Node 24 모두 WebCrypto `crypto.subtle`을 가진다.
  */
 export async function hashKeyword(salt: string, raw: string): Promise<string> {
-  const data = new TextEncoder().encode(`${salt}:${normalizeKeyword(raw)}`);
-  return toHex(await crypto.subtle.digest("SHA-256", data));
+  return sha256HexOf(new TextEncoder().encode(`${salt}:${normalizeKeyword(raw)}`));
 }
 
 /** 입력이 해당 유물의 허용 핵심어 중 하나와 일치하면 true. 빈 입력은 항상 false. */

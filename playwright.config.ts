@@ -24,6 +24,8 @@ export default defineConfig({
   webServer: {
     command: "pnpm build && pnpm preview",
     url: "http://127.0.0.1:4179",
+    // 교사 핵심어 파일이 있어도 e2e는 예시 핵심어로 돈다 (결정론)
+    env: { CODEX_KEYWORDS: "example" },
     // 로컬에서는 이미 떠 있는 preview를 재사용한다(다른 세션이 4173을 점유한 전례가 있어 4179 사용).
     reuseExistingServer: !process.env["CI"],
     timeout: 120_000,

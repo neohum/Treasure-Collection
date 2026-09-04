@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "codex-ui-codex",
+  "productionBuild": {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/index.html",
+    "log": "evidence/20260904-codex-ui-codex/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4179/",
+    "readyMethod": "HTTP GET / (curl, 1초 폴링) + Playwright 7건",
+    "readyStatus": 200,
+    "process": {
+      "pid": 38794,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260904-codex-ui-codex/codex-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

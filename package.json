@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "e2e": "playwright test",
+    "visual": "playwright test tests/e2e/codex.spec.ts -g 스크린샷",
     "build:config": "tsx scripts/build-config.ts",
     "pack:bundle": "tsx scripts/pack-bundle.ts"
   },

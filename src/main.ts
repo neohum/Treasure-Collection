@@ -1,28 +1,32 @@
 import "./styles.css";
+import "./print.css";
 // 별도 모듈로 import해야 vite.config.ts의 woff2-only 변환이 적용된다 (styles.css 주석 참고).
 import "@flaticon/flaticon-uicons/css/regular/rounded.css";
+import { CodexApp } from "./ui/app";
+import type { CodexConfig } from "./core/types";
+import { h, icon } from "./ui/dom";
 
-// Step 3(codex-ui-codex)에서 실제 도감 화면으로 교체된다. 지금은 스캐폴드가
-// 빌드·서빙·아이콘 폰트 로드까지 되는지 확인하는 최소 셸이다.
-const root = document.getElementById("app");
-if (!root) throw new Error("app root not found");
+async function loadConfig(): Promise<CodexConfig> {
+  // 상대 경로: 허브(/dist/{id}/)와 GitHub Pages(/Treasure-Collection/) 모두에서 같은 파일을 가리킨다.
+  const res = await fetch("./config.json", { cache: "no-cache" });
+  if (!res.ok) throw new Error(`config.json 로드 실패 (${res.status})`);
+  const config = (await res.json()) as CodexConfig;
+  if (config.schema !== 1) throw new Error("지원하지 않는 config 버전");
+  return config;
+}
 
-const header = document.createElement("header");
-header.className = "flex items-center gap-3 p-4 bg-slate-900 text-amber-400";
+async function boot(): Promise<void> {
+  const root = document.getElementById("app");
+  if (!root) throw new Error("app root not found");
+  try {
+    const config = await loadConfig();
+    document.title = config.title;
+    await CodexApp.mount(root, config);
+  } catch (err) {
+    root.replaceChildren(
+      h("div", { class: "boot-error", role: "alert" }, icon("exclamation", "text-red-500 text-2xl"), h("p", {}, "도감을 불러오지 못했습니다."), h("p", { class: "text-xs text-slate-500" }, err instanceof Error ? err.message : String(err))),
+    );
+  }
+}
 
-const logo = document.createElement("img");
-logo.src = "./logo.svg";
-logo.alt = "";
-logo.width = 36;
-logo.height = 36;
-
-const icon = document.createElement("i");
-icon.className = "fi fi-rr-treasure-chest text-2xl";
-icon.setAttribute("aria-hidden", "true");
-
-const title = document.createElement("h1");
-title.className = "text-lg font-bold";
-title.textContent = "역사 보물도감";
-
-header.append(logo, icon, title);
-root.append(header);
+void boot();
