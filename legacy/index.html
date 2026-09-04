@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5학년 역사 디지털 보물도감 | 구글 클래스룸 PWA</title>
+    
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="description" content="초등학교 5학년 사회과 역사 디지털 유물 사진 수집 및 구글 클래스룸 과제 포트폴리오 웹앱">
+    <meta name="theme-color" content="#d97706">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="역사보물도감">
+    
+    <!-- Open Graph for Google Classroom Link Preview -->
+    <meta property="og:title" content="5학년 역사 디지털 보물도감">
+    <meta property="og:description" content="초등학교 5학년 사회과 역사 디지털 유물 사진 수집 프로젝트 및 구글 클래스룸 과제 포트폴리오">
+    <meta property="og:image" content="og-image.png">
+    <meta property="og:type" content="website">
+
+    <!-- Icons & Manifest -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amberGold: '#D4AF37',
+                        darkSlate: '#1E293B',
+                        curatorGold: '#F59E0B'
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', '"Apple SD Gothic Neo"', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Flaticon UIcons (Single Standard strictly required by AGENTS.md) -->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+
+    <style>
+        body {
+            word-break: keep-all;
+        }
+        .gold-border {
+            border: 2px solid #F59E0B;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        .locked-card-bg {
+            background: #F8FAFC;
+            background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Print / PDF Portfolio Stylesheet */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            main { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .era-section-print { page-break-inside: avoid; margin-bottom: 20px; }
+            .era-content { display: grid !important; }
+            .gold-border { border: 1px solid #94a3b8 !important; box-shadow: none !important; }
+            .locked-card-bg { border: 1px dashed #cbd5e1 !important; }
+        }
+        @media screen {
+            .print-only { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-16 font-sans selection:bg-amber-200">
+
+    <!-- Offline Status Indicator Banner -->
+    <div id="offlineBanner" class="bg-amber-600 text-slate-950 font-bold text-xs py-1.5 px-4 text-center hidden flex items-center justify-center gap-2 shadow-sm no-print">
+        <i class="fi fi-rr-wifi-slash"></i>
+        <span>현재 오프라인 상태입니다. 저장된 유물과 기록으로 계속 학습할 수 있습니다.</span>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30 no-print">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <div class="bg-amber-500 text-slate-950 p-2.5 rounded-xl shadow-lg flex items-center justify-center">
+                    <i class="fi fi-rr-box text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-tight text-amber-400 flex items-center gap-2">
+                        🏛️ 5학년 역사 디지털 보물도감
+                    </h1>
+                    <p class="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1">
+                        구글 클래스룸 과제 포트폴리오 & PWA 서비스
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Classroom & Student Utility Action Buttons -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 text-xs w-full md:w-auto justify-between md:justify-end">
+                <!-- Student Profile Quick Info & Edit Trigger -->
+                <button onclick="openStudentModal()" class="flex items-center bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                    <i class="fi fi-rr-graduation-cap text-amber-400 mr-1.5 text-xs"></i>
+                    <span id="headerStudentText" class="font-bold text-white max-w-[130px] truncate">학생 정보 입력</span>
+                    <i class="fi fi-rr-edit text-[10px] text-slate-400 ml-1.5"></i>
+                </button>
+
+                <!-- Google Classroom Share Button -->
+                <button onclick="shareToGoogleClassroom()" title="구글 클래스룸에 과제로 공유 또는 제출" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg shadow transition flex items-center gap-1.5">
+                    <i class="fi fi-rr-share"></i>
+                    <span class="hidden lg:inline">클래스룸 공유</span>
+                </button>
+
+                <!-- Copy Summary for Classroom Comment -->
+                <button onclick="copySubmissionSummary()" title="구글 클래스룸 과제 댓글용 요약 복사" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg shadow transition flex items-center gap-1.5">
+                    <i class="fi fi-rr-copy"></i>
+                    <span class="hidden sm:inline">과제 요약 복사</span>
+                </button>
+
+                <!-- Print / Save as PDF Button -->
+                <button onclick="window.print()" title="도감 과제 리포트 인쇄 또는 PDF 저장" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fi fi-rr-print text-amber-400"></i>
+                    <span class="hidden sm:inline">도감 출력/PDF</span>
+                </button>
+
+                <!-- PWA Install Button (Dynamic) -->
+                <button id="pwaInstallBtn" onclick="installPWA()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg shadow transition items-center gap-1.5 animate-pulse">
+                    <i class="fi fi-rr-apps"></i>
+                    <span>앱 설치</span>
+                </button>
+
+                <!-- Extra Menu Dropdown Trigger -->
+                <div class="relative">
+                    <button onclick="toggleExtraMenu()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1.5 rounded-lg transition" title="부가 기능">
+                        <i class="fi fi-rr-angle-small-down"></i>
+                    </button>
+                    <!-- Extra Menu Popover -->
+                    <div id="extraMenu" class="hidden absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs">
+                        <button onclick="exportDataJson()" class="w-full text-left px-4 py-2 hover:bg-slate-800 text-slate-200 flex items-center gap-2">
+                            <i class="fi fi-rr-download text-amber-400"></i> 데이터 백업 (JSON)
+                        </button>
+                        <button onclick="document.getElementById('importFileInput').click()" class="w-full text-left px-4 py-2 hover:bg-slate-800 text-slate-200 flex items-center gap-2">
+                            <i class="fi fi-rr-upload text-amber-400"></i> 데이터 복원 (JSON)
+                        </button>
+                        <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJson(event)">
+                        <button onclick="openTeacherGuideModal()" class="w-full text-left px-4 py-2 hover:bg-slate-800 text-slate-200 flex items-center gap-2">
+                            <i class="fi fi-rr-info text-amber-400"></i> 교사용 활용 안내
+                        </button>
+                        <div class="border-t border-slate-800 my-1"></div>
+                        <button onclick="openResetModal()" class="w-full text-left px-4 py-2 hover:bg-red-950/60 text-red-400 flex items-center gap-2">
+                            <i class="fi fi-rr-refresh text-red-400"></i> 전체 도감 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Print Only Header Report (A4 Optimization for Google Classroom Submission) -->
+    <div class="print-only max-w-5xl mx-auto p-6 bg-white border-b-2 border-slate-800 mb-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900">🏛️ 5학년 역사 디지털 보물도감 과제 제출서</h1>
+                <p class="text-xs text-slate-600 mt-1">초등학교 5학년 사회과 역사 교육과정 시대별 대표 유물 20종 탐구 포트폴리오</p>
+                <div class="mt-3 text-sm font-bold text-slate-800 flex gap-4">
+                    <span id="printSchoolInfo">학교: -</span>
+                    <span id="printClassInfo">학년/반/번호: 5학년</span>
+                    <span id="printStudentInfo">이름: -</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="border-2 border-slate-800 rounded-lg p-2.5 text-center min-w-[120px]">
+                    <span class="text-[10px] font-bold text-slate-500 block">선생님 확인 직인</span>
+                    <div class="h-12 flex items-center justify-center text-xs text-slate-400 font-bold">
+                        ( 참 잘했어요 )
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1" id="printSubmissionDate">제출일자: 2026-09-04</p>
+            </div>
+        </div>
+        <div class="mt-4 bg-slate-100 p-2.5 rounded-lg flex justify-between items-center text-xs font-bold">
+            <span>수집 완료 유물: <strong id="printProgressCount" class="text-amber-700">0</strong> / 20종</span>
+            <span>달성률: <strong id="printProgressPercent" class="text-amber-700">0%</strong></span>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 mt-6">
+        <!-- Progress Summary Banner -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6 no-print">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="displayClassInfo" class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">5학년 사회</span>
+                        <span class="text-xs text-slate-500">시대별 대표 보물 20종</span>
+                        <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200">
+                            PWA 오프라인 지원
+                        </span>
+                    </div>
+                    <h2 class="text-xl font-extrabold text-slate-900 mt-1">
+                        <span id="displayStudentTitle">나만의</span> 보물 수집 현황
+                    </h2>
+                </div>
+
+                <!-- Total Progress Bar -->
+                <div class="w-full md:w-80 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                    <div class="flex justify-between text-xs font-bold mb-1.5">
+                        <span class="text-slate-600">전체 달성률</span>
+                        <span id="progressText" class="text-amber-600 font-extrabold">0 / 20 (0%)</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden p-0.5">
+                        <div id="progressBar" class="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notice & Quick Controls -->
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2 text-slate-600 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/60 w-full sm:w-auto flex-1">
+                    <i class="fi fi-rr-bulb text-amber-600 text-sm flex-shrink-0"></i>
+                    <span><strong>이용 방법:</strong> 클래스룸에서 다운받은 유물 사진을 <strong>[📷 사진 등록]</strong>으로 올리고 소감을 적으세요. 완료 후 <strong>[클래스룸 공유/요약 복사]</strong>로 과제를 제출하세요.</span>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button onclick="toggleAllEras(true)" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-[11px] transition">
+                        <i class="fi fi-rr-folder-open mr-1"></i> 모두 펼치기
+                    </button>
+                    <button onclick="toggleAllEras(false)" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-[11px] transition">
+                        <i class="fi fi-rr-folder mr-1"></i> 모두 접기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Era Filter Navigation Bar -->
+        <nav class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 no-print scrollbar-none" id="eraFilterTabs">
+            <!-- Dynamic Filter Tabs populated by JS -->
+        </nav>
+
+        <!-- Era Accordions Container -->
+        <div id="eraAccordionContainer" class="space-y-6">
+            <!-- Era Sections will be injected dynamically -->
+        </div>
+    </main>
+
+    <!-- Student Profile Edit Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fi fi-rr-graduation-cap text-amber-400"></i>
+                    <h3 class="font-bold text-base">학생 인적사항 설정</h3>
+                </div>
+                <button onclick="closeStudentModal()" class="text-slate-400 hover:text-white">
+                    <i class="fi fi-rr-cross"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-3.5 text-xs">
+                <p class="text-slate-600 leading-relaxed">
+                    구글 클래스룸 과제 제출 및 도감 인쇄 시 상단에 표시될 학생 정보입니다.
+                </p>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">학교명 (선택)</label>
+                    <input type="text" id="modalInputSchool" placeholder="예: 대한민국초등학교" 
+                           class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">학년</label>
+                        <input type="text" id="modalInputGrade" value="5학년" 
+                               class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none font-semibold">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">반</label>
+                        <input type="text" id="modalInputClass" placeholder="예: 2반" 
+                               class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">번호</label>
+                        <input type="text" id="modalInputNumber" placeholder="예: 15번" 
+                               class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">학생 이름 *</label>
+                    <input type="text" id="modalInputName" placeholder="예: 홍길동" 
+                           class="w-full p-2.5 border border-slate-300 rounded-xl font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+            </div>
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeStudentModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg">취소</button>
+                <button onclick="saveStudentProfile()" class="px-5 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg shadow-md transition">
+                    저장하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fi fi-rr-cloud-upload text-amber-400"></i>
+                    <h3 class="font-bold text-base" id="modalSlotTitle">보물 유물 등록하기</h3>
+                </div>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-white text-sm">
+                    <i class="fi fi-rr-cross"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4">
+                <!-- Hint / Context -->
+                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900">
+                    <div class="font-bold mb-1 flex items-center gap-1.5 text-sm">
+                        <span id="modalEraBadge" class="bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2 py-0.5 rounded">시대</span>
+                        <span id="modalArtifactName" class="text-slate-900 font-bold">유물명</span>
+                    </div>
+                    <p id="modalHintText" class="text-slate-700 leading-relaxed mt-1">선생님이 과제로 전달해주신 유물 사진을 등록하세요.</p>
+                </div>
+
+                <!-- File Input Area -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">1. 클래스룸에서 다운받은 사진 파일 선택</label>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                    
+                    <div onclick="document.getElementById('fileInput').click()" 
+                         class="border-2 border-dashed border-slate-300 hover:border-amber-500 bg-slate-50 hover:bg-amber-50/30 rounded-xl p-4 text-center cursor-pointer transition-all">
+                        <div id="uploadPlaceholder">
+                            <i class="fi fi-rr-picture text-3xl text-slate-400 mb-2"></i>
+                            <p class="text-xs font-bold text-slate-600">여기 클릭하여 사진 파일 업로드</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">JPG, PNG 파일 지원 (크롬북/스마트폰 다운로드 폴더)</p>
+                        </div>
+                        <img id="imagePreview" class="hidden max-h-48 mx-auto rounded-lg object-contain shadow-sm border border-slate-200">
+                    </div>
+                </div>
+
+                <!-- Reflection Input -->
+                <div>
+                    <label for="reflectionInput" class="block text-xs font-bold text-slate-700 mb-1">
+                        2. 큐레이터 한 줄 소감 (배운 점 / 유물의 가치)
+                    </label>
+                    <textarea id="reflectionInput" rows="2" 
+                              placeholder="예: 백성들을 지켜주려는 선조들의 마음과 뛰어난 과학 기술이 느껴졌다."
+                              class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeUploadModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-lg">취소</button>
+                <button onclick="confirmUpload()" class="px-5 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg shadow-md transition flex items-center gap-1.5">
+                    <i class="fi fi-rr-unlock"></i> 도감에 등재하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail View Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-amber-300">
+            <div class="bg-gradient-to-r from-slate-900 to-amber-950 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span id="detailEra" class="bg-amber-500 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded">시대</span>
+                    <h3 id="detailTitle" class="font-bold text-base text-amber-300">유물 이름</h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white text-sm">
+                    <i class="fi fi-rr-cross"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-3">
+                <div class="bg-slate-950 rounded-xl p-2 text-center overflow-hidden border border-slate-800">
+                    <img id="detailImage" class="max-h-64 mx-auto rounded object-contain">
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                    <div class="font-bold text-slate-800 mb-1 flex items-center gap-1">
+                        <i class="fi fi-rr-document-signed text-amber-600"></i> 유물 개요 및 역사적 가치
+                    </div>
+                    <p id="detailDescription" class="text-slate-600 leading-relaxed"></p>
+                </div>
+
+                <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200 text-xs">
+                    <div class="font-bold text-amber-900 mb-1 flex items-center gap-1">
+                        <i class="fi fi-rr-edit text-amber-700"></i> 내가 적은 큐레이터 한 줄
+                    </div>
+                    <p id="detailNote" class="text-slate-800 italic font-medium"></p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-between items-center">
+                <button id="reuploadBtn" class="text-xs text-slate-500 hover:text-amber-700 underline font-semibold flex items-center gap-1">
+                    <i class="fi fi-rr-refresh"></i> 사진 변경하기
+                </button>
+                <button onclick="closeDetailModal()" class="px-4 py-1.5 text-xs font-bold bg-slate-800 text-white rounded-lg">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Guide Modal -->
+    <div id="teacherGuideModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fi fi-rr-info text-amber-400"></i>
+                    <h3 class="font-bold text-base">선생님을 위한 구글 클래스룸 활용 가이드</h3>
+                </div>
+                <button onclick="closeTeacherGuideModal()" class="text-slate-400 hover:text-white">
+                    <i class="fi fi-rr-cross"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 text-xs text-slate-700 leading-relaxed">
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl">
+                    <h4 class="font-bold text-amber-950 text-sm mb-1">📖 수업 과제 진행 순서</h4>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-800">
+                        <li><strong>과제 등록:</strong> 구글 클래스룸에 본 웹앱 링크(URL)를 링크 과제로 등록합니다.</li>
+                        <li><strong>유물 사진 전달:</strong> 시대별 유물 사진을 과제 첨부파일 또는 구글 드라이브 폴더로 공유합니다.</li>
+                        <li><strong>도감 수집 & 소감 작성:</strong> 학생들이 사진을 업로드하고 큐레이터 한 줄 소감을 작성합니다.</li>
+                        <li><strong>과제 제출:</strong> 학생은 [과제 요약 복사]로 댓글에 붙여넣거나, [도감 출력]에서 'PDF로 저장'하여 첨부 제출합니다.</li>
+                    </ol>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <h4 class="font-bold text-slate-900 text-sm mb-1">💻 크롬북 & PWA 설치 팁</h4>
+                    <p>학생 크롬북에서 상단 <strong>[앱 설치]</strong>를 클릭하면 전용 앱으로 등록되어, 인터넷 연결이 불안정한 환경에서도 오프라인으로 100% 원활히 학습할 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-end">
+                <button onclick="closeTeacherGuideModal()" class="px-5 py-2 text-xs font-bold bg-slate-900 text-white rounded-lg">확인 완료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Custom Modal -->
+    <div id="resetModal" class="fixed inset-0 bg-slate-950/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-sm w-full rounded-2xl p-5 shadow-xl text-center space-y-3">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fi fi-rr-exclamation"></i>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">보물도감 초기화</h3>
+            <p class="text-xs text-slate-600">모든 유물 사진과 기록이 삭제됩니다.<br>정말로 초기화하시겠습니까?</p>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeResetModal()" class="flex-1 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg">취소</button>
+                <button onclick="confirmReset()" class="flex-1 py-2 text-xs font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg">초기화 진행</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-amber-500/50 flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs font-bold no-print">
+        <i class="fi fi-rr-check-circle text-amber-400 text-base"></i>
+        <span id="toastMessage">메시지 내용</span>
+    </div>
+
+    <script>
+        // Expanded Era Categories & Treasures Dataset (5th Grade Social Studies History Curriculum)
+        const ERA_CATEGORIES = [
+            {
+                id: "prehistoric",
+                name: "선사 및 고조선",
+                icon: "fi-rr-campground",
+                badgeColor: "bg-amber-100 text-amber-800 border-amber-300",
+                description: "한반도 역사의 시작과 돌, 청동을 다루던 시대",
+                treasures: [
+                    { id: "art_01", era: "신석기", name: "빗살무늬 토기", hint: "뾰족한 밑바닥과 빗살 무늬가 특징인 신석기 시대 대표 토기입니다.", description: "식량을 저장하고 조리하며 정착 생활을 가능하게 한 인류의 지혜가 담긴 토기입니다." },
+                    { id: "art_02", era: "청동기", name: "고인돌", hint: "거대한 돌을 올려 만든 청동기 시대 지배자의 대표적 무덤입니다.", description: "당시 계급의 등장과 정복 사회의 시작을 보여주는 대형 석조 유적입니다." },
+                    { id: "art_03", era: "청동기", name: "비파형 청동검", hint: "비파라는 악기 모양을 닮은 청동검으로 고조선의 세력 범위를 나타냅니다.", description: "독자적인 금속 가공 기술과 우수한 군사력을 상징하는 고조선의 청동기 유물입니다." }
+                ]
+            },
+            {
+                id: "three_kingdoms",
+                name: "삼국 및 가야",
+                icon: "fi-rr-shield",
+                badgeColor: "bg-red-100 text-red-800 border-red-300",
+                description: "고구려, 백제, 신라, 가야가 찬란한 문화를 꽃피운 시대",
+                treasures: [
+                    { id: "art_04", era: "고구려", name: "고구려 수막새", hint: "연꽃무늬가 새겨진 기와의 끝 장식으로 기상의 당당함을 자랑합니다.", description: "건물의 품격을 높이고 빗물을 막는 고구려의 우수한 전통 기와 기법입니다." },
+                    { id: "art_05", era: "고구려", name: "무용총 무용도", hint: "고구려 고분 벽화에 그려진 화려한 의상과 무용수들의 모습입니다.", description: "고구려 사람들의 생활 모습과 무용, 의복 문화를 생생히 전해주는 수벽화입니다." },
+                    { id: "art_06", era: "백제", name: "백제 금동대향로", hint: "용, 봉황, 신선이 섬세하게 새겨진 백제 금속 공예의 최고 걸작입니다.", description: "도교와 불교 사상이 어우러진 백제의 세계적인 공예 문화유산입니다." },
+                    { id: "art_07", era: "신라", name: "신라 금관", hint: "나뭇가지와 사슴뿔 모양 장식이 돋보이는 신라 왕의 화려한 왕관입니다.", description: "신라의 뛰어난 금속 세공 기술과 왕권의 위엄을 상징하는 국보급 유물입니다." },
+                    { id: "art_08", era: "신라", name: "첨성대", hint: "동양에서 가장 오래된 별을 관측하던 신라의 천문대입니다.", description: "농사와 계절을 살피기 위해 별을 관찰했던 선조들의 우수한 과학 유산입니다." },
+                    { id: "art_09", era: "가야", name: "가야 기마인물형 토기", hint: "말 탄 무사의 모습과 뿔잔이 결합된 가야의 제철·토기 문화유산입니다.", description: "철의 나라 가야의 뛰어난 철제 갑옷 기술과 내세관을 보여주는 유물입니다." }
+                ]
+            },
+            {
+                id: "unified_silla_balhae",
+                name: "통일신라 및 발해",
+                icon: "fi-rr-landmark",
+                badgeColor: "bg-indigo-100 text-indigo-800 border-indigo-300",
+                description: "찬란한 불교 예술과 해동성국 발해의 자부심",
+                treasures: [
+                    { id: "art_10", era: "통일신라", name: "석굴암 본존불", hint: "신라 건축과 조각 예술의 정수가 집약된 인공 석굴 사원입니다.", description: "빛과 수학적 비율이 완벽히 조화된 통일신라 불교 조각의 대걸작입니다." },
+                    { id: "art_11", era: "통일신라", name: "불국사 다보탑", hint: "화강암을 마치 나무를 깎듯 다듬어 쌓아 올린 독창적인 석탑입니다.", description: "통일신라 석조 건축 예술의 섬세함과 창의성을 대표하는 문화재입니다." },
+                    { id: "art_12", era: "발해", name: "발해 이불병좌상", hint: "두 부처님이 나란히 앉아 있는 발해의 대표적인 불상 유물입니다.", description: "고구려 양식을 계승한 해동성국 발해의 자부심 높은 문화유산입니다." }
+                ]
+            },
+            {
+                id: "goryeo",
+                name: "고려 시대",
+                icon: "fi-rr-document-signed",
+                badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
+                description: "비색의 청자와 세계 최고의 인쇄술이 꽃피운 시대",
+                treasures: [
+                    { id: "art_13", era: "고려", name: "고려 상감청자", hint: "흙에 도안을 파고 다른 흙을 채워 비색 유약을 바른 도자기입니다.", description: "세계가 찬사한 고려 독자적인 도자기 제작 기법(상감)의 결정체입니다." },
+                    { id: "art_14", era: "고려", name: "팔만대장경판", hint: "외세의 침입을 부처님의 힘으로 막고자 8만 여 장의 목판에 새긴 경전입니다.", description: "글자 하나마다 절을 하며 정성을 다해 새긴 세계기록유산입니다." },
+                    { id: "art_15", era: "고려", name: "직지심체요절", hint: "세계에서 가장 오래된 금속 활자로 인쇄된 서책입니다.", description: "서양의 구텐베르크보다 앞선 고려의 뛰어난 금속 활자 인쇄 기술 증거입니다." }
+                ]
+            },
+            {
+                id: "joseon",
+                name: "조선 시대",
+                icon: "fi-rr-crown",
+                badgeColor: "bg-rose-100 text-rose-800 border-rose-300",
+                description: "애민 정신과 과학 기술, 기록 문화가 만난 시대",
+                treasures: [
+                    { id: "art_16", era: "조선", name: "훈민정음 해례본", hint: "세종대왕이 한글을 창제한 원리와 사용법을 기록한 서책입니다.", description: "백성을 사랑하는 세종의 애민 정신과 한글의 과학성이 집약된 유네스코 세계기록유산입니다." },
+                    { id: "art_17", era: "조선", name: "앙부일구 (오목해시계)", hint: "글을 모르는 백성도 시간을 알 수 있도록 그림을 새긴 해시계입니다.", description: "절기와 시각을 정밀하게 측정했던 조선의 대표 과학 유산입니다." },
+                    { id: "art_18", era: "조선", name: "자격루 (자동물시계)", hint: "물줄기의 힘으로 종과 북을 울려 정해진 시간을 알려주던 장치입니다.", description: "장영실과 조선 학자들의 정밀한 공학 기술이 집약된 자동 물시계입니다." },
+                    { id: "art_19", era: "조선", name: "수원화성", hint: "정약용의 거중기와 과학적 건축 기술로 쌓아 올린 조선 성곽입니다.", description: "자연 지형과 실용적 성벽 구조가 결합된 세계문화유산입니다." },
+                    { id: "art_20", era: "조선", name: "대동여지도", hint: "김정호가 전국을 직접 발로 뛰며 만든 대형 수공식 지도입니다.", description: "산줄기와 물줄기, 십리마다 점을 찍어 거리를 정밀하게 나타낸 지리학 보물입니다." }
+                ]
+            }
+        ];
+
+        // State Management
+        let userProgress = {}; // { artifact_id: { imageBase64, note, unlockedAt } }
+        let studentProfile = {
+            school: "",
+            grade: "5학년",
+            className: "",
+            number: "",
+            name: ""
+        };
+        let eraAccordionState = {}; // { era_id: boolean }
+        let currentEditingId = null;
+        let selectedBase64 = null;
+        let activeFilterEra = "all"; // 'all' or era.id
+        let deferredPrompt = null;
+
+        const STORAGE_KEY = "elemental_history_treasure_codex_v3";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Default all era accordions to OPEN
+            ERA_CATEGORIES.forEach(era => {
+                eraAccordionState[era.id] = true;
+            });
+
+            loadSavedData();
+            renderFilterTabs();
+            renderErasAndGrid();
+            updateProgress();
+            setupPWA();
+            setupNetworkListeners();
+        });
+
+        // 1. Data Persistence
+        function loadSavedData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    userProgress = parsed.progress || {};
+                    if (parsed.profile) {
+                        studentProfile = Object.assign(studentProfile, parsed.profile);
+                    } else if (parsed.studentName) {
+                        studentProfile.name = parsed.studentName;
+                    }
+                } catch(e) {
+                    console.error("데이터 로드 실패:", e);
+                }
+            }
+            refreshStudentDisplay();
+        }
+
+        function saveData() {
+            const dataToSave = {
+                profile: studentProfile,
+                progress: userProgress,
+                updatedAt: new Date().toISOString()
+            };
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+                updateProgress();
+                return true;
+            } catch (e) {
+                console.error("저장 공간 초과 오류:", e);
+                showToast("⚠️ 저장 공간이 부족합니다. 사진 크기를 더 줄여주세요.");
+                return false;
+            }
+        }
+
+        function refreshStudentDisplay() {
+            const displayName = studentProfile.name ? studentProfile.name : "학생";
+            const fullTitle = studentProfile.name ? `${studentProfile.name} 학생의` : "나만의";
+            
+            document.getElementById('headerStudentText').innerText = studentProfile.name 
+                ? `${studentProfile.className ? studentProfile.className + ' ' : ''}${studentProfile.name}` 
+                : '학생 정보 입력';
+            document.getElementById('displayStudentTitle').innerText = fullTitle;
+
+            // Print Header values
+            document.getElementById('printSchoolInfo').innerText = `학교: ${studentProfile.school || '초등학교'}`;
+            document.getElementById('printClassInfo').innerText = `학년/반/번호: ${studentProfile.grade || '5학년'} ${studentProfile.className || ''} ${studentProfile.number || ''}`;
+            document.getElementById('printStudentInfo').innerText = `이름: ${studentProfile.name || '미등록'}`;
+            document.getElementById('printSubmissionDate').innerText = `출력일자: ${new Date().toLocaleDateString('ko-KR')}`;
+        }
+
+        // Student Profile Modal Controls
+        function openStudentModal() {
+            document.getElementById('modalInputSchool').value = studentProfile.school || '';
+            document.getElementById('modalInputGrade').value = studentProfile.grade || '5학년';
+            document.getElementById('modalInputClass').value = studentProfile.className || '';
+            document.getElementById('modalInputNumber').value = studentProfile.number || '';
+            document.getElementById('modalInputName').value = studentProfile.name || '';
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function saveStudentProfile() {
+            studentProfile.school = document.getElementById('modalInputSchool').value.trim();
+            studentProfile.grade = document.getElementById('modalInputGrade').value.trim() || '5학년';
+            studentProfile.className = document.getElementById('modalInputClass').value.trim();
+            studentProfile.number = document.getElementById('modalInputNumber').value.trim();
+            studentProfile.name = document.getElementById('modalInputName').value.trim();
+
+            saveData();
+            refreshStudentDisplay();
+            closeStudentModal();
+            showToast("학생 정보가 성공적으로 저장되었습니다!");
+        }
+
+        // 2. Rendering Logic
+        function renderFilterTabs() {
+            const tabsContainer = document.getElementById('eraFilterTabs');
+            tabsContainer.innerHTML = '';
+
+            // 'All' tab
+            const allBtn = document.createElement('button');
+            allBtn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border flex items-center gap-1.5 ${
+                activeFilterEra === 'all' 
+                ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-sm' 
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`;
+            allBtn.innerHTML = `<i class="fi fi-rr-apps"></i> 전체 보기`;
+            allBtn.onclick = () => filterByEra('all');
+            tabsContainer.appendChild(allBtn);
+
+            // Era Category tabs
+            ERA_CATEGORIES.forEach(era => {
+                const btn = document.createElement('button');
+                btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border flex items-center gap-1.5 ${
+                    activeFilterEra === era.id 
+                    ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-sm' 
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`;
+                btn.innerHTML = `<i class="fi ${era.icon}"></i>${era.name}`;
+                btn.onclick = () => filterByEra(era.id);
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        function filterByEra(eraId) {
+            activeFilterEra = eraId;
+            if (eraId !== 'all') {
+                eraAccordionState[eraId] = true;
+            }
+            renderFilterTabs();
+            renderErasAndGrid();
+        }
+
+        function toggleEraAccordion(eraId) {
+            eraAccordionState[eraId] = !eraAccordionState[eraId];
+            renderErasAndGrid();
+        }
+
+        function toggleAllEras(isOpen) {
+            ERA_CATEGORIES.forEach(era => {
+                eraAccordionState[era.id] = isOpen;
+            });
+            renderErasAndGrid();
+        }
+
+        function renderErasAndGrid() {
+            const container = document.getElementById('eraAccordionContainer');
+            container.innerHTML = '';
+
+            const categoriesToRender = activeFilterEra === 'all' 
+                ? ERA_CATEGORIES 
+                : ERA_CATEGORIES.filter(e => e.id === activeFilterEra);
+
+            categoriesToRender.forEach(era => {
+                const isExpanded = eraAccordionState[era.id];
+                
+                // Progress
+                const eraTotal = era.treasures.length;
+                let eraUnlockedCount = 0;
+                era.treasures.forEach(t => {
+                    if (userProgress[t.id]) eraUnlockedCount++;
+                });
+                const eraPercentage = Math.round((eraUnlockedCount / eraTotal) * 100);
+
+                const eraSection = document.createElement('section');
+                eraSection.className = "era-section-print bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all";
+
+                // Era Accordion Header
+                eraSection.innerHTML = `
+                    <div onclick="toggleEraAccordion('${era.id}')" 
+                         class="p-4 bg-slate-900 hover:bg-slate-800 text-white cursor-pointer transition flex items-center justify-between select-none">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow">
+                                <i class="fi ${era.icon} text-base"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-base text-amber-300">${era.name}</h3>
+                                    <span class="text-[11px] font-extrabold px-2 py-0.5 rounded ${era.badgeColor}">
+                                        ${eraUnlockedCount} / ${eraTotal} 완료
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 font-normal hidden sm:block">${era.description}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 no-print">
+                            <!-- Era Progress Mini Bar -->
+                            <div class="hidden md:flex flex-col items-end w-28">
+                                <span class="text-[10px] text-slate-400 font-bold mb-0.5">${eraPercentage}%</span>
+                                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-amber-400 h-full transition-all duration-300" style="width: ${eraPercentage}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-slate-400 text-base transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}">
+                                <i class="fi fi-rr-angle-small-down"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Era Content Cards Grid -->
+                    <div id="era_content_${era.id}" class="era-content p-4 bg-slate-50 border-t border-slate-100 ${isExpanded ? '' : 'hidden'}">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="grid_${era.id}">
+                            <!-- Cards inserted below -->
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(eraSection);
+
+                // Render Treasures inside this era grid
+                const eraGrid = document.getElementById(`grid_${era.id}`);
+                era.treasures.forEach((treasure) => {
+                    const isUnlocked = !!userProgress[treasure.id];
+                    const cardData = userProgress[treasure.id];
+
+                    const card = document.createElement('div');
+                    card.className = `rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between ${
+                        isUnlocked 
+                        ? 'bg-white gold-border shadow-md transform hover:-translate-y-1' 
+                        : 'locked-card-bg border-2 border-dashed border-slate-300 shadow-sm'
+                    }`;
+
+                    if (isUnlocked) {
+                        card.innerHTML = `
+                            <div>
+                                <div class="relative bg-slate-900 aspect-video flex items-center justify-center overflow-hidden">
+                                    <img src="${cardData.imageBase64}" alt="${treasure.name}" class="w-full h-full object-cover">
+                                    <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2 py-0.5 rounded shadow">
+                                        ${treasure.era}
+                                    </span>
+                                    <span class="absolute top-2 right-2 bg-emerald-500 text-white font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                                        <i class="fi fi-rr-check-circle"></i> 해금 완료
+                                    </span>
+                                </div>
+
+                                <div class="p-3.5">
+                                    <h4 class="font-bold text-slate-900 text-sm mb-1.5">${treasure.name}</h4>
+                                    <div class="bg-amber-50/80 p-2.5 rounded-xl border border-amber-100/80 text-xs text-slate-700">
+                                        <p class="italic font-medium line-clamp-2 text-[11px]">"${cardData.note || '큐레이터 메모 없음'}"</p>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-2 flex items-center justify-between">
+                                        <span>등록일: ${cardData.unlockedAt || '-'}</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="p-3.5 pt-0 flex gap-2 no-print">
+                                <button onclick="openDetailModal('${treasure.id}')" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl transition flex items-center justify-center gap-1.5">
+                                    <i class="fi fi-rr-search text-[11px]"></i> 자세히 보기
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        card.innerHTML = `
+                            <div class="p-4 flex flex-col items-center text-center justify-center h-full min-h-[220px]">
+                                <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-lg mb-2">
+                                    <i class="fi fi-rr-lock"></i>
+                                </div>
+                                <span class="bg-slate-200 text-slate-600 font-bold text-[10px] px-2 py-0.5 rounded-full mb-1">
+                                    ${treasure.era} 미션
+                                </span>
+                                <h4 class="font-bold text-slate-700 text-sm mb-1">${treasure.name}</h4>
+                                <p class="text-[11px] text-slate-500 leading-tight mb-3 px-1 line-clamp-2">${treasure.hint}</p>
+
+                                <button onclick="openUploadModal('${treasure.id}')" 
+                                        class="no-print w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-extrabold text-xs py-2 rounded-xl shadow-md transition flex items-center justify-center gap-1.5">
+                                    <i class="fi fi-rr-camera"></i> <span>[📷 유물 사진 등록]</span>
+                                </button>
+                                <span class="print-only text-[10px] text-slate-400 border border-slate-300 px-3 py-1 rounded">미완료 유물</span>
+                            </div>
+                        `;
+                    }
+
+                    eraGrid.appendChild(card);
+                });
+            });
+        }
+
+        function updateProgress() {
+            let total = 0;
+            ERA_CATEGORIES.forEach(e => total += e.treasures.length);
+
+            const count = Object.keys(userProgress).length;
+            const percentage = Math.round((count / total) * 100);
+
+            document.getElementById('progressText').innerText = `${count} / ${total} (${percentage}%)`;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+
+            // Print Progress
+            document.getElementById('printProgressCount').innerText = count;
+            document.getElementById('printProgressPercent').innerText = `${percentage}%`;
+        }
+
+        function findTreasureById(id) {
+            for (let era of ERA_CATEGORIES) {
+                const found = era.treasures.find(t => t.id === id);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        // 3. Upload & File Handling
+        function openUploadModal(id) {
+            currentEditingId = id;
+            selectedBase64 = null;
+
+            const treasure = findTreasureById(id);
+            if (!treasure) return;
+
+            document.getElementById('modalSlotTitle').innerText = `${treasure.name} 해금하기`;
+            document.getElementById('modalEraBadge').innerText = treasure.era;
+            document.getElementById('modalArtifactName').innerText = treasure.name;
+            document.getElementById('modalHintText').innerText = treasure.hint;
+
+            const existing = userProgress[id];
+            document.getElementById('reflectionInput').value = existing ? existing.note : '';
+            
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('uploadPlaceholder');
+            if (existing && existing.imageBase64) {
+                selectedBase64 = existing.imageBase64;
+                preview.src = existing.imageBase64;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+
+            document.getElementById('fileInput').value = '';
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast("이미지 파일만 선택 가능합니다.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 800; // Efficient resolution for local storage & mobile
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    selectedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                    const preview = document.getElementById('imagePreview');
+                    const placeholder = document.getElementById('uploadPlaceholder');
+                    preview.src = selectedBase64;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function confirmUpload() {
+            if (!selectedBase64) {
+                showToast("사진 파일을 선택해주세요!");
+                return;
+            }
+
+            const note = document.getElementById('reflectionInput').value.trim();
+            const previousState = userProgress[currentEditingId];
+
+            userProgress[currentEditingId] = {
+                imageBase64: selectedBase64,
+                note: note || "선조들의 지혜와 뛰어난 기술이 담긴 소중한 문화유산입니다.",
+                unlockedAt: new Date().toLocaleDateString('ko-KR')
+            };
+
+            const isSaved = saveData();
+            if (isSaved) {
+                renderErasAndGrid();
+                closeUploadModal();
+                showToast("🎉 보물이 도감에 성공적으로 등재되었습니다!");
+            } else {
+                if (previousState) {
+                    userProgress[currentEditingId] = previousState;
+                } else {
+                    delete userProgress[currentEditingId];
+                }
+            }
+        }
+
+        // 4. Detail View Modal Logic
+        function openDetailModal(id) {
+            const treasure = findTreasureById(id);
+            const data = userProgress[id];
+            if (!treasure || !data) return;
+
+            document.getElementById('detailEra').innerText = treasure.era;
+            document.getElementById('detailTitle').innerText = treasure.name;
+            document.getElementById('detailImage').src = data.imageBase64;
+            document.getElementById('detailDescription').innerText = treasure.description;
+            document.getElementById('detailNote').innerText = `"${data.note}"`;
+
+            document.getElementById('reuploadBtn').onclick = function() {
+                closeDetailModal();
+                openUploadModal(id);
+            };
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // 5. Google Classroom Integration Features
+        // Share link directly to Google Classroom
+        function shareToGoogleClassroom() {
+            const currentUrl = window.location.href;
+            const studentInfoStr = studentProfile.name 
+                ? `${studentProfile.grade} ${studentProfile.className} ${studentProfile.name}` 
+                : '5학년 사회';
+            const shareTitle = `[역사 보물도감] ${studentInfoStr} 과제 활동`;
+
+            // If Web Share API is supported, offer native share
+            if (navigator.share) {
+                navigator.share({
+                    title: shareTitle,
+                    text: `5학년 역사 디지털 보물도감 과제 활동입니다. (달성률: ${document.getElementById('progressText').innerText})`,
+                    url: currentUrl
+                }).catch(() => {
+                    // Fallback to Classroom intent
+                    openClassroomIntent(currentUrl, shareTitle);
+                });
+            } else {
+                openClassroomIntent(currentUrl, shareTitle);
+            }
+        }
+
+        function openClassroomIntent(url, title) {
+            const classroomUrl = `https://classroom.google.com/share?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+            window.open(classroomUrl, '_blank', 'width=650,height=700,menubar=no,toolbar=no');
+        }
+
+        // Copy summary formatted for Classroom submission comment
+        function copySubmissionSummary() {
+            let total = 0;
+            ERA_CATEGORIES.forEach(e => total += e.treasures.length);
+            const unlockedCount = Object.keys(userProgress).length;
+            const percent = Math.round((unlockedCount / total) * 100);
+
+            const studentStr = studentProfile.name 
+                ? `${studentProfile.school ? studentProfile.school + ' ' : ''}${studentProfile.grade} ${studentProfile.className ? studentProfile.className + ' ' : ''}${studentProfile.number ? studentProfile.number + ' ' : ''}${studentProfile.name}` 
+                : '5학년 학생';
+
+            let reportText = `[🏛️ 5학년 역사 디지털 보물도감 과제 제출]\n`;
+            reportText += `• 제출 학생: ${studentStr}\n`;
+            reportText += `• 달성 현황: ${unlockedCount} / ${total}종 (${percent}%)\n`;
+            reportText += `• 제출 일시: ${new Date().toLocaleString('ko-KR')}\n\n`;
+            reportText += `--- 수집한 유물 및 큐레이터 한 줄 소감 ---\n`;
+
+            let hasItems = false;
+            ERA_CATEGORIES.forEach(era => {
+                const eraItems = era.treasures.filter(t => userProgress[t.id]);
+                if (eraItems.length > 0) {
+                    hasItems = true;
+                    reportText += `\n[${era.name}]\n`;
+                    eraItems.forEach(t => {
+                        const note = userProgress[t.id].note || '소감 없음';
+                        reportText += ` - ${t.name} (${t.era}): "${note}"\n`;
+                    });
+                }
+            });
+
+            if (!hasItems) {
+                reportText += `(아직 등재된 유물이 없습니다. 사진을 등록해보세요!)\n`;
+            }
+
+            navigator.clipboard.writeText(reportText).then(() => {
+                showToast("📋 과제 제출 요약문이 복사되었습니다! 클래스룸에 붙여넣으세요.");
+            }).catch(err => {
+                console.error("복사 실패:", err);
+                showToast("복사 실패. 권한을 확인해주세요.");
+            });
+        }
+
+        // 6. JSON Data Export & Import (Cross-Device & Classroom File Backup)
+        function exportDataJson() {
+            toggleExtraMenu(false);
+            const dataToExport = {
+                app: "history-treasure-codex",
+                version: "3.0",
+                exportedAt: new Date().toISOString(),
+                profile: studentProfile,
+                progress: userProgress
+            };
+
+            const jsonStr = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const fileName = `보물도감_${studentProfile.name || '5학년'}_${new Date().toISOString().slice(0,10)}.json`;
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("💾 데이터 백업 파일이 다운로드되었습니다.");
+        }
+
+        function importDataJson(event) {
+            toggleExtraMenu(false);
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.progress) {
+                        userProgress = imported.progress;
+                        if (imported.profile) {
+                            studentProfile = imported.profile;
+                        }
+                        saveData();
+                        refreshStudentDisplay();
+                        renderErasAndGrid();
+                        showToast("✅ 도감 데이터를 성공적으로 복원했습니다!");
+                    } else {
+                        showToast("⚠️ 올바른 도감 데이터 파일 형식이 아닙니다.");
+                    }
+                } catch(err) {
+                    console.error("JSON 파싱 에러:", err);
+                    showToast("⚠️ 파일 읽기 오류가 발생했습니다.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // 7. PWA Installation & Service Worker Handling
+        function setupPWA() {
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('[PWA] Service Worker registered with scope:', reg.scope);
+                    })
+                    .catch(err => {
+                        console.warn('[PWA] Service Worker registration failed:', err);
+                    });
+            }
+
+            // Capture install prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const installBtn = document.getElementById('pwaInstallBtn');
+                if (installBtn) {
+                    installBtn.classList.remove('hidden');
+                    installBtn.classList.add('flex');
+                }
+            });
+
+            window.addEventListener('appinstalled', () => {
+                deferredPrompt = null;
+                const installBtn = document.getElementById('pwaInstallBtn');
+                if (installBtn) installBtn.classList.add('hidden');
+                showToast("🎉 보물도감 앱이 성공적으로 설치되었습니다!");
+            });
+        }
+
+        function installPWA() {
+            if (!deferredPrompt) {
+                showToast("이미 앱이 설치되어 있거나 브라우저 메뉴에서 설치할 수 있습니다.");
+                return;
+            }
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('[PWA] User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                document.getElementById('pwaInstallBtn').classList.add('hidden');
+            });
+        }
+
+        // 8. Network Online/Offline Listeners
+        function setupNetworkListeners() {
+            const updateOnlineStatus = () => {
+                const banner = document.getElementById('offlineBanner');
+                if (!navigator.onLine) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            };
+
+            window.addEventListener('online', () => {
+                updateOnlineStatus();
+                showToast("🌐 인터넷에 다시 연결되었습니다.");
+            });
+            window.addEventListener('offline', () => {
+                updateOnlineStatus();
+                showToast("📡 오프라인 모드로 전환되었습니다.");
+            });
+
+            updateOnlineStatus();
+        }
+
+        // 9. Extra Menus & Guide Modals
+        function toggleExtraMenu(forceState) {
+            const menu = document.getElementById('extraMenu');
+            if (forceState !== undefined) {
+                if (forceState) menu.classList.remove('hidden');
+                else menu.classList.add('hidden');
+            } else {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Close extra menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('extraMenu');
+            if (!e.target.closest('#extraMenu') && !e.target.closest('[onclick="toggleExtraMenu()"]')) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        function openTeacherGuideModal() {
+            toggleExtraMenu(false);
+            document.getElementById('teacherGuideModal').classList.remove('hidden');
+        }
+
+        function closeTeacherGuideModal() {
+            document.getElementById('teacherGuideModal').classList.add('hidden');
+        }
+
+        // Reset Custom Modal Logic
+        function openResetModal() {
+            toggleExtraMenu(false);
+            document.getElementById('resetModal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.add('hidden');
+        }
+
+        function confirmReset() {
+            userProgress = {};
+            localStorage.removeItem(STORAGE_KEY);
+            studentProfile.name = '';
+            refreshStudentDisplay();
+            renderErasAndGrid();
+            updateProgress();
+            closeResetModal();
+            showToast("보물도감이 초기화되었습니다.");
+        }
+
+        // Custom Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

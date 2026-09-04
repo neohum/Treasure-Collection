@@ -1,0 +1,17 @@
+$ pnpm build
+
+> treasure-codex@0.1.0 build D:\works\Treasure-Collection
+> vite build
+
+[36mvite v8.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 6 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                               0.87 kB │ gzip:  0.52 kB
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-CwJkfPFU.css                              185.47 kB │ gzip: 36.18 kB
+dist/assets/index-BHC_s9lZ.js                                 1.19 kB │ gzip:  0.66 kB
+
+[32m✓ built in 235ms[39m
+exitCode=0

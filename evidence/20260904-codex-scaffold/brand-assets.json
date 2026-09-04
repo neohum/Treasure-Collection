@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "card": "codex-scaffold",
+  "mode": "reused",
+  "source": "public/logo.svg",
+  "logo": {
+    "path": "public/logo.svg",
+    "references": ["src/main.ts"]
+  },
+  "favicon": {
+    "path": "public/favicon.svg",
+    "references": ["index.html"],
+    "sizes": [16, 32]
+  },
+  "appIcon": {
+    "path": "public/icons/icon-512.png",
+    "references": ["public/pwa.json"],
+    "minSize": 512
+  },
+  "screenshot": "evidence/20260904-codex-scaffold/screenshot-chromebook-1366x768.png",
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

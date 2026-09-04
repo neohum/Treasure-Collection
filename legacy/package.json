@@ -1,0 +1,22 @@
+{
+  "name": "treasure-collection-pwa",
+  "version": "1.0.0",
+  "description": "5th Grade Korean History Digital Treasure Codex PWA for Google Classroom",
+  "main": "index.html",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "dev": "node scripts/serve.js",
+    "test": "node scripts/verify-all.js",
+    "generate-assets": "node scripts/generate-assets.js",
+    "verify": "node scripts/verify-all.js"
+  },
+  "keywords": [
+    "pwa",
+    "google-classroom",
+    "education",
+    "history",
+    "service-worker"
+  ],
+  "author": "Treasure Collection Team",
+  "license": "MIT"
+}

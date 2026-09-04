@@ -25,3 +25,8 @@ logs/
 *.bundle
 **/test-results/
 **/playwright-report/
+
+# 교사가 실제로 쓰는 핵심어 평문. 번들에는 해시만 들어가고 평문은 저장소에 올리지 않는다.
+content/keywords.json
+# build:config가 생성한다 (src/data + content/keywords.json → public/config.json)
+public/config.json

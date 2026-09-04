@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# main 직접 푸시 차단 (AGENTS.md "main 직접 푸시 금지").
+# 사람이 의도적으로 올릴 때만 ALLOW_MAIN_PUSH=1 로 우회한다.
+# 설치: git config core.hooksPath .githooks
+remote="$1"
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/master)
+      if [ "${ALLOW_MAIN_PUSH:-}" != "1" ]; then
+        echo "pre-push: '$remote_ref'로의 직접 푸시는 차단됩니다. 브랜치를 올리고 gh pr create → gh pr merge --squash 를 쓰세요." >&2
+        echo "pre-push: 정말 필요하면 ALLOW_MAIN_PUSH=1 git push ..." >&2
+        exit 1
+      fi
+      ;;
+  esac
+done
+exit 0
