@@ -15,3 +15,119 @@
 html {
   word-break: keep-all;
 }
+
+/* ── 레이아웃 ─────────────────────────────────────────────── */
+.app-header { @apply bg-slate-900 text-white shadow-md sticky top-0 z-30; }
+.app-header-inner { @apply max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3; }
+.app-logo { @apply rounded-xl bg-amber-500 p-1; }
+.app-title { @apply text-lg md:text-xl font-bold tracking-tight text-amber-400; }
+.app-subtitle { @apply text-xs text-slate-400; }
+.app-main { @apply max-w-6xl mx-auto px-4 mt-6 pb-16 space-y-6; }
+.panel { @apply bg-white rounded-2xl p-5 shadow-sm border border-slate-200; }
+
+/* ── 헤더 입력 ────────────────────────────────────────────── */
+.label-wrap { @apply flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700; }
+.label-input { @apply bg-transparent text-white text-sm focus:outline-none w-28 font-semibold placeholder:text-slate-500; }
+
+/* ── 버튼 ─────────────────────────────────────────────────── */
+.btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl font-bold text-sm px-4 py-2 transition focus-visible:outline-2 focus-visible:outline-amber-500; }
+.btn-sm { @apply text-xs px-3 py-1.5; }
+.btn-xs { @apply text-[11px] px-3 py-1.5 rounded-lg; }
+.btn-primary { @apply bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md; }
+.btn-secondary { @apply bg-slate-200 hover:bg-slate-300 text-slate-700; }
+.btn-dark { @apply bg-slate-900 hover:bg-slate-800 text-white; }
+.btn-ghost { @apply bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700; }
+.btn-danger { @apply bg-red-600 hover:bg-red-700 text-white; }
+.btn-danger-ghost { @apply bg-red-950/50 hover:bg-red-900 text-red-300 border border-red-800/60; }
+.btn-icon { @apply text-slate-400 hover:text-white text-lg p-1 rounded-lg; }
+
+/* ── 요약 배너 ────────────────────────────────────────────── */
+.summary-row { @apply flex flex-col md:flex-row md:items-center justify-between gap-4; }
+.summary-title { @apply text-xl font-extrabold text-slate-900 mt-1; }
+.summary-foot { @apply mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3; }
+.tip { @apply flex items-center gap-2 text-xs text-slate-600 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/60 flex-1; }
+.progress-wrap { @apply w-full md:w-80 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80; }
+.progress-text { @apply flex justify-between text-xs font-bold mb-1.5 text-slate-600; }
+.progress-track { @apply w-full bg-slate-200 h-3.5 rounded-full overflow-hidden p-0.5; }
+.progress-bar { @apply bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 h-full rounded-full transition-all duration-500; }
+
+/* ── 뱃지 ─────────────────────────────────────────────────── */
+.badge { @apply inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full; }
+.badge-amber { @apply bg-amber-100 text-amber-800 text-xs px-2.5 py-1; }
+.badge-muted { @apply bg-slate-200 text-slate-600 mb-1; }
+.badge-era { @apply bg-amber-500 text-slate-950 rounded absolute top-2 left-2 shadow; }
+.badge-done { @apply bg-emerald-500 text-white absolute top-2 right-2 shadow; }
+.badge-count { @apply bg-amber-100 text-amber-800 text-[11px] rounded ml-2; }
+
+/* ── 시대 탭/섹션 ─────────────────────────────────────────── */
+.tabs { @apply flex items-center gap-2 overflow-x-auto pb-2; }
+.tab { @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border bg-white text-slate-600 border-slate-200 hover:bg-slate-50; }
+.tab-active { @apply bg-slate-900 text-amber-400 border-slate-900 shadow-sm; }
+.eras { @apply space-y-6; }
+.era { @apply bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden; }
+.era-head { @apply w-full text-left p-4 bg-slate-900 hover:bg-slate-800 text-white transition flex items-center justify-between gap-3 select-none; }
+.era-icon { @apply w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center text-base shrink-0; }
+.era-text { @apply flex-1 min-w-0; }
+.era-name { @apply font-bold text-base text-amber-300 flex items-center; }
+.era-desc { @apply block text-[11px] text-slate-400 font-normal; }
+.era-meta { @apply flex items-center gap-3 text-slate-400; }
+.era-pct { @apply text-[10px] font-bold; }
+.era-chevron { @apply transition-transform duration-300 inline-block; }
+.era-content { @apply p-4 bg-slate-50 border-t border-slate-100; }
+.card-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4; }
+
+/* ── 카드 ─────────────────────────────────────────────────── */
+.card { @apply rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between; }
+.card-locked {
+  @apply border-2 border-dashed border-slate-300 shadow-sm p-4 items-center text-center min-h-[220px];
+  background: #f8fafc radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.card-lock { @apply w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-lg mb-2 mx-auto; }
+.card-title { @apply font-bold text-slate-800 text-sm mb-1; }
+.card-hint { @apply text-[11px] text-slate-500 leading-tight mb-3 px-1 line-clamp-2; }
+.card-actions { @apply flex gap-2 w-full; }
+.card-actions .btn { @apply flex-1; }
+.card-unlocked { @apply bg-white shadow-md border-2 border-amber-500 hover:-translate-y-1; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+.card-media { @apply relative bg-slate-900 aspect-video flex items-center justify-center overflow-hidden; }
+.card-image { @apply w-full h-full object-cover; }
+.card-keyword-art { @apply w-full h-full flex flex-col items-center justify-center gap-1 text-amber-400 bg-gradient-to-br from-slate-900 to-amber-950; }
+.card-body { @apply p-3.5; }
+.card-note { @apply bg-amber-50/80 p-2.5 rounded-xl border border-amber-100/80 text-[11px] text-slate-700 italic font-medium line-clamp-2; }
+.card-unlocked .card-actions { @apply p-3.5 pt-0; }
+
+@keyframes unlock-pop {
+  0% { transform: scale(0.92); box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+  50% { transform: scale(1.04); box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+  100% { transform: scale(1); }
+}
+.card-just-unlocked { animation: unlock-pop 700ms ease-out; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.shake { animation: shake 300ms ease-in-out; }
+
+/* ── 모달 ─────────────────────────────────────────────────── */
+.modal-backdrop { @apply fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4; }
+.modal-panel { @apply bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col; }
+.modal-head { @apply bg-slate-900 text-white p-4 flex justify-between items-center; }
+.modal-head-danger { @apply bg-red-900; }
+.modal-body { @apply p-5 space-y-4 overflow-y-auto; }
+.modal-foot { @apply bg-slate-50 px-5 py-3 border-t border-slate-100; }
+.hint-box { @apply bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900 space-y-1; }
+.hint-box .badge-era { @apply static; }
+.field { @apply block space-y-1.5; }
+.field-label { @apply block text-xs font-bold text-slate-700; }
+.field-error { @apply text-xs text-red-600 font-bold min-h-4; }
+.input { @apply w-full text-sm p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none; }
+.drop { @apply block border-2 border-dashed border-slate-300 hover:border-amber-500 bg-slate-50 hover:bg-amber-50/30 rounded-xl p-4 text-center cursor-pointer transition-all; }
+.preview { @apply max-h-48 mx-auto rounded-lg object-contain shadow-sm border border-slate-200; }
+.detail-media { @apply bg-slate-950 rounded-xl p-2 text-center overflow-hidden border border-slate-800; }
+.detail-image { @apply max-h-64 mx-auto rounded object-contain; }
+.detail-art { @apply h-40 rounded; }
+.info-box { @apply bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed; }
+.info-box-amber { @apply bg-amber-50/80 border-amber-200 text-slate-800; }
+.info-title { @apply font-bold text-slate-800 mb-1 flex items-center gap-1; }
+
+/* ── 토스트/오류 ──────────────────────────────────────────── */
+.toast { @apply fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-amber-500/50 flex items-center gap-2 translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs font-bold; }
+.toast-visible { @apply translate-y-0 opacity-100; }
+.boot-error { @apply max-w-md mx-auto mt-16 p-6 bg-white rounded-2xl border border-red-200 text-center space-y-2; }

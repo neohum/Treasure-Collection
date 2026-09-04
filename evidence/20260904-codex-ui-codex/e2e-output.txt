@@ -1,0 +1,16 @@
+
+> treasure-codex@0.1.0 e2e D:\works\Treasure-Collection
+> playwright test
+
+
+Running 7 tests using 2 workers
+
+  ok 1 [chromebook] › tests\e2e\smoke.spec.ts:3:1 › production 빌드가 열리고 아이콘 폰트가 로드된다 (1.3s)
+  ok 2 [chromebook] › tests\e2e\codex.spec.ts:22:3 › 보물도감 화면 › 핵심어 입력으로 해금되고 오답은 거부된다 (AC-1) (1.6s)
+  ok 3 [chromebook] › tests\e2e\codex.spec.ts:43:3 › 보물도감 화면 › 사진 등록으로 해금되고 새로고침 후에도 유지된다 (AC-2) (939ms)
+  ok 4 [chromebook] › tests\e2e\codex.spec.ts:65:3 › 보물도감 화면 › 아이콘은 전부 fi fi-rr이며 FontAwesome·이모지·인라인 SVG 아이콘이 없다 (AC-3) (505ms)
+  ok 5 [chromebook] › tests\e2e\codex.spec.ts:85:3 › 보물도감 화면 › 학생 소감은 HTML로 해석되지 않는다 (AC-4) (833ms)
+  ok 6 [chromebook] › tests\e2e\codex.spec.ts:99:3 › 보물도감 화면 › 크롬북·데스크톱·모바일 뷰포트 스크린샷과 인쇄 레이아웃 (AC-5, AC-6) (1.2s)
+  ok 7 [chromebook] › tests\e2e\codex.spec.ts:125:3 › 보물도감 화면 › 초기화하면 모든 기록이 사라진다 (691ms)
+
+  7 passed (10.1s)

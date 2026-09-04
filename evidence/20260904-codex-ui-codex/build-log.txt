@@ -1,0 +1,22 @@
+$ pnpm build
+
+> treasure-codex@0.1.0 prebuild D:\works\Treasure-Collection
+> tsx scripts/build-config.ts
+
+config.json 생성: 유물 20종, 핵심어 출처 src/data/keywords.example.json (예시)
+
+> treasure-codex@0.1.0 build D:\works\Treasure-Collection
+> vite build
+
+[36mvite v8.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 20 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                               0.87 kB │ gzip:  0.52 kB
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-B6BAldYj.css                              214.95 kB │ gzip: 39.11 kB
+dist/assets/index-6ud7HytD.js                                23.56 kB │ gzip:  9.04 kB
+
+[32m✓ built in 380ms[39m
+exitCode=0

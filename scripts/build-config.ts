@@ -19,7 +19,9 @@ export const TOOL_TITLE = "역사 보물도감";
 export async function buildConfig(keywordSource?: string): Promise<CodexConfig> {
   const teacherFile = resolve(root, "content/keywords.json");
   const exampleFile = resolve(root, "src/data/keywords.example.json");
-  const source = keywordSource ?? (existsSync(teacherFile) ? teacherFile : exampleFile);
+  // CODEX_KEYWORDS=example — e2e가 교사 파일 유무와 무관하게 결정론적으로 돌도록 예시를 강제한다.
+  const forceExample = process.env["CODEX_KEYWORDS"] === "example";
+  const source = keywordSource ?? (!forceExample && existsSync(teacherFile) ? teacherFile : exampleFile);
   const keywords = JSON.parse(readFileSync(source, "utf8")) as Record<string, string[] | string>;
   const cleaned: Record<string, string[]> = {};
   for (const [k, v] of Object.entries(keywords)) {
