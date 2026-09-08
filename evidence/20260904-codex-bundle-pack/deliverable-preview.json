@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "codex-bundle-pack",
+  "productionBuild": {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/manifest.json",
+    "log": "evidence/20260904-codex-bundle-pack/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4181/",
+    "readyMethod": "HTTP GET / 및 /manifest.json (curl)",
+    "readyStatus": 200,
+    "process": {
+      "pid": 41446,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260904-codex-bundle-pack/codex-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

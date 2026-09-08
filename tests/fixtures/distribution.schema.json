@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ClassroomToolDistributionManifest",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "audience",
+    "distributionMode",
+    "entrypoint"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "audience": {
+      "type": "string",
+      "enum": ["teacher_only", "student_distributable", "classroom_shared"]
+    },
+    "distributionMode": {
+      "type": "string",
+      "enum": ["standalone", "lan_web_bundle", "realtime_socket"]
+    },
+    "entrypoint": {
+      "type": "string"
+    },
+    "integrityHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "offlineCapable": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowedOrigins": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

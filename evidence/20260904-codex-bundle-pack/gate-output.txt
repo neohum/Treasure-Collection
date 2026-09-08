@@ -1,0 +1,84 @@
+$ pnpm typecheck
+> treasure-codex@0.1.0 typecheck D:\works\Treasure-Collection
+> tsc --noEmit -p tsconfig.json
+
+$ pnpm lint
+✖ 1 problem (1 error, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ pnpm test
+ Test Files  12 passed (12)
+      Tests  42 passed (42)
+$ pnpm build && pnpm pack:bundle
+[32m✓ built in 408ms[39m
+
+번들 확정: 파일 16개, 699 KB, sha256:83f670add50911d35137930048a38123338aace93d0a4ebd55a8c1ca6d242245
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+$ cat dist/manifest.json
+{
+  "id": "treasure-codex",
+  "name": "역사 보물도감",
+  "version": "0.1.0",
+  "category": "역사 학습",
+  "audience": "student_distributable",
+  "distributionMode": "lan_web_bundle",
+  "entrypoint": "index.html",
+  "integrityHash": "sha256:83f670add50911d35137930048a38123338aace93d0a4ebd55a8c1ca6d242245",
+  "offlineCapable": true
+}
+$ find dist -type f
+dist/apple-touch-icon.png
+dist/assets/index-B_cWP13y.js
+dist/assets/index-BaTg2I7c.css
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2
+dist/config.json
+dist/favicon.ico
+dist/favicon.svg
+dist/icons/apple-touch-icon.png
+dist/icons/icon-192.png
+dist/icons/icon-512.png
+dist/icons/icon-maskable.png
+dist/icons/og-image.png
+dist/index.html
+dist/logo.svg
+dist/manifest.json
+dist/og-image.png
+dist/pwa.json
+$ pnpm lint (재실행)
+> eslint .
+
+$ bash scripts/loop/health.sh
+✓ 24 modules transformed.
+[32m✓ built in 317ms[39m
+[32m✓ build[0m
+[32m✓ lint[0m
+[32m✓ typecheck[0m
+ Test Files  12 passed (12)
+      Tests  42 passed (42)
+[32m✓ test[0m
+  11 passed (9.1s)
+[32m✓ e2e[0m
+  1 passed (5.3s)
+[32m✓ visual[0m
+[1m▶ cli-smoke: bash -c node scripts/route.ts "health check"[0m
+  task:  health check
+[32m✓ cli-smoke[0m
+[32m✓ behavior-spec[0m
+[32m✓ version-sync[0m
+brand assets: blocked
+[31m✗ brand-assets failed[0m
+✓ 24 modules transformed.
+[32m✓ built in 337ms[39m
+[32m✓ build[0m
+[32m✓ lint[0m
+[32m✓ typecheck[0m
+[32m✓ test[0m
+[32m✓ e2e[0m
+[32m✓ visual[0m
+[1m▶ cli-smoke: bash -c node scripts/route.ts "health check"[0m
+  task:  health check
+[32m✓ cli-smoke[0m
+[32m✓ behavior-spec[0m
+[32m✓ version-sync[0m
+brand assets: blocked
+[31m✗ brand-assets failed[0m

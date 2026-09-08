@@ -1,0 +1,11 @@
+{
+  "id": "mini-bundle",
+  "name": "mini",
+  "version": "0.0.1",
+  "category": "test",
+  "audience": "student_distributable",
+  "distributionMode": "lan_web_bundle",
+  "entrypoint": "index.html",
+  "integrityHash": "sha256:cd16c10dfc01178770efd5276f9b20f6448975085cc1a1fdc0821a95cf257505",
+  "offlineCapable": true
+}
