@@ -1,0 +1,17 @@
+dist/apple-touch-icon.png
+dist/assets/index-B_cWP13y.js
+dist/assets/index-BaTg2I7c.css
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2
+dist/config.json
+dist/favicon.ico
+dist/favicon.svg
+dist/icons/apple-touch-icon.png
+dist/icons/icon-192.png
+dist/icons/icon-512.png
+dist/icons/icon-maskable.png
+dist/icons/og-image.png
+dist/index.html
+dist/logo.svg
+dist/manifest.json
+dist/og-image.png
+dist/pwa.json

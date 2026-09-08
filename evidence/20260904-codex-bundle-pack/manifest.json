@@ -1,0 +1,11 @@
+{
+  "id": "treasure-codex",
+  "name": "역사 보물도감",
+  "version": "0.1.0",
+  "category": "역사 학습",
+  "audience": "student_distributable",
+  "distributionMode": "lan_web_bundle",
+  "entrypoint": "index.html",
+  "integrityHash": "sha256:83f670add50911d35137930048a38123338aace93d0a4ebd55a8c1ca6d242245",
+  "offlineCapable": true
+}

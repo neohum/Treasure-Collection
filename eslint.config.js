@@ -21,6 +21,8 @@ export default tseslint.config(
       "playwright-report/**",
       "test-results/**",
       "evidence/**",
+      // 번들 해시 교차 검증용 고정 픽스처 — 내용이 바뀌면 해시가 바뀐다
+      "tests/fixtures/**",
     ],
   },
   js.configs.recommended,

@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "card": "codex-bundle-pack",
+  "mode": "reused",
+  "source": "public/logo.svg",
+  "logo": {
+    "path": "public/logo.svg",
+    "references": [
+      "src/ui/app.ts"
+    ]
+  },
+  "favicon": {
+    "path": "public/favicon.svg",
+    "references": [
+      "index.html"
+    ],
+    "sizes": [
+      16,
+      32
+    ]
+  },
+  "appIcon": {
+    "path": "public/icons/icon-512.png",
+    "references": [
+      "public/pwa.json"
+    ]
+  },
+  "screenshot": "evidence/20260904-codex-bundle-pack/codex-1366x768.png",
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}
