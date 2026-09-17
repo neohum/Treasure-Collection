@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 import tailwindcss from "@tailwindcss/vite";
 import type { Plugin } from "vite";
+import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -43,6 +44,39 @@ export function trimIconCss(code: string, used: Set<string>): string {
   }).replace(/\.variable-selector-[0-9a-f]+:before\{[^}]*\}|\.combining-half-marks-[0-9a-f]+:before\{[^}]*\}/g, "");
 }
 
+/**
+ * 도감 설정(config.json)을 빌드 시점에 만들어 두 경로로 제공한다.
+ *  - `virtual:codex-config` 모듈: JS 번들 안에 내장 → 배포 환경이 어디에 서빙하든 fetch 실패로 앱이 죽지 않는다
+ *    (cloud-school 뷰어처럼 index.html을 번들과 다른 경로에서 여는 경우 `./config.json`이 404였다, 2026-09-17)
+ *  - `dist/config.json`: 교사가 파일만 바꿔 핵심어를 교체하는 경로. 생성 스크립트가 public/config.json을
+ *    쓰고 Vite가 public/을 그대로 복사한다. `vite build`를 직접 불러도(prebuild 생략) 여기서 만들어진다.
+ */
+function codexConfigPlugin(): Plugin {
+  const VIRTUAL = "virtual:codex-config";
+  const RESOLVED = "\0" + VIRTUAL;
+  let json = "";
+  return {
+    name: "treasure-codex:config",
+    buildStart() {
+      // 소스 모듈을 vite.config에 직접 import하면 Vite 설정 로더가 확장자 경고를 쏟는다.
+      // 생성 스크립트를 자식 프로세스로 돌리고(prebuild와 같은 명령) 산출물 파일만 읽는다.
+      const out = join(import.meta.dirname, "public", "config.json");
+      execFileSync(process.execPath, ["--import", "tsx", join(import.meta.dirname, "scripts", "build-config.ts")], {
+        cwd: import.meta.dirname,
+        stdio: ["ignore", "ignore", "inherit"],
+        env: process.env,
+      });
+      json = readFileSync(out, "utf8");
+    },
+    resolveId(id) {
+      return id === VIRTUAL ? RESOLVED : null;
+    },
+    load(id) {
+      return id === RESOLVED ? `export default ${json};` : null;
+    },
+  };
+}
+
 function trimIconFontCss(): Plugin {
   return {
     name: "treasure-codex:trim-icon-css",
@@ -58,7 +92,7 @@ export default defineConfig({
   // 허브는 `/dist/{toolID}/`, GitHub Pages는 `/Treasure-Collection/` 아래에서 서빙한다.
   // 상대 경로여야 두 곳 모두에서 에셋이 열린다.
   base: "./",
-  plugins: [trimIconFontCss(), tailwindcss()],
+  plugins: [codexConfigPlugin(), trimIconFontCss(), tailwindcss()],
   build: {
     outDir: "dist",
     emptyOutDir: true,

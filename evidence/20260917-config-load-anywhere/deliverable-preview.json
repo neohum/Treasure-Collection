@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "config-load-anywhere",
+  "productionBuild": {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/index.html",
+    "log": "evidence/20260917-config-load-anywhere/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4181/",
+    "readyMethod": "HTTP GET / 및 /config.json (curl) + Playwright smoke 3건(뷰어 경로·404 폴백 포함)",
+    "readyStatus": 200,
+    "process": {
+      "pid": 4897,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260917-config-load-anywhere/screenshot-chromebook-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}
