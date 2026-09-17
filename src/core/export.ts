@@ -26,7 +26,8 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
   return `data:${blob.type || "application/octet-stream"};base64,${btoa(binary)}`;
 }
 
-function dataUrlToBlob(dataUrl: string): Blob {
+/** data URL → Blob. 가져오기와 교사 화면의 읽기 전용 재생(src/core/bridge.ts)이 같은 변환을 쓴다. */
+export function dataUrlToBlob(dataUrl: string): Blob {
   const match = /^data:([^;,]+)?(;base64)?,(.*)$/s.exec(dataUrl);
   if (!match) throw new Error("잘못된 data URL");
   const mime = match[1] ?? "application/octet-stream";

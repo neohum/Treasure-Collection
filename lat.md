@@ -18,7 +18,7 @@ Tailwind v4로 만든 설치형 PWA이며, all_market 구름학교 런처의 교
 ├── src/
 │   ├── main.ts       # 부트스트랩
 │   ├── styles.css    # Tailwind v4 + Flaticon UIcons(fi fi-rr) + 토큰
-│   ├── core/         # 도메인: 정규화·해금·저장(IndexedDB)·내보내기·전송 페이로드·허브 감지
+│   ├── core/         # 도메인: 정규화·해금·저장(IndexedDB)·내보내기·전송 페이로드·허브 감지·교사 수집/재생 브리지(bridge.ts)
 │   ├── data/         # 유물 20종 데이터, 핵심어 예시
 │   ├── ui/           # DOM 렌더러 (innerHTML 금지, textContent만)
 │   └── sw.ts         # service worker (Step 4)
@@ -56,6 +56,7 @@ Tailwind v4로 만든 설치형 PWA이며, all_market 구름학교 런처의 교
 | 도구 매니페스트 | `dist/manifest.json` | all_market `ToolDistributionManifest`, 허용 확장자 12종 |
 | 전송 API | `POST {hub}/api/tools/{toolID}/submissions` | 계획서 "전송 API 계약" 절, 두 저장소 동일 |
 | 무결성 해시 | `scripts/integrity-hash.ts` | bundler.go:213 프레이밍, `tests/fixtures/mini-bundle` 교차 검증 |
+| 교사 과제 수집/재생 | `window.CloudSchoolApp` + `cloudschool_*` postMessage | `docs/cloudschool-protocol.md`, 순수 로직 `src/core/bridge.ts` |
 
 ## Don't-touch list
 

@@ -1,0 +1,21 @@
+$ PREVIEW_PORT=4185 pnpm preview  (background)
+pnpm pid=1667
+$ curl -s -o /dev/null -w '%{http_code} %{size_download}' http://127.0.0.1:4185/
+200 1085
+$ curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4185/assets/index-DqsuP2RP.css
+200
+$ netstat -ano | grep :4185 | grep LISTENING
+  TCP    127.0.0.1:4185         0.0.0.0:0              LISTENING       30352
+listening pid=30352
+$ taskkill //PID 30352 //F
+(taskkill: PID 30352 프로세스가 종료되었습니다 — 원문은 cp949 콘솔 출력이라 여기서는 UTF-8로 옮겨 적음)
+$ netstat -ano | grep :4185  (after kill)
+  TCP    127.0.0.1:60139        127.0.0.1:4185         TIME_WAIT       0
+  TCP    127.0.0.1:61568        127.0.0.1:4185         TIME_WAIT       0
+  TCP    127.0.0.1:64163        127.0.0.1:4185         TIME_WAIT       0
+
+> treasure-codex@0.1.0 preview D:\works\Treasure-Collection\.claude\worktrees\agent-a91d7e6eeaa735bca
+> vite preview
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4185[22m/[39m
+ ELIFECYCLE  Command failed with exit code 1.

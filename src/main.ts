@@ -4,8 +4,66 @@ import "./print.css";
 import "@flaticon/flaticon-uicons/css/regular/rounded.css";
 import { CodexApp } from "./ui/app";
 import type { CodexConfig } from "./core/types";
+import { CLOUDSCHOOL_PROTOCOL_VERSION, handleBridgeMessage, isInboundMessage, readyMessage, type BridgeHost, type CloudSchoolApp, type OutboundMessage } from "./core/bridge";
 import { h, icon } from "./ui/dom";
 import embeddedConfig from "virtual:codex-config";
+
+/** `#restore`로 열렸는데 이 시간 안에 제출물이 오지 않으면 안내를 띄운다 */
+const RESTORE_HINT_DELAY_MS = 3000;
+
+/**
+ * Cloud-School 교사 화면(과제 수집)과의 배선. 순수 로직은 src/core/bridge.ts, 전문은 docs/cloudschool-protocol.md.
+ *  - window.CloudSchoolApp: 같은 문서 안에서 부르는 API (collect / restore / clearRestore)
+ *  - postMessage: iframe 부모가 부르는 같은 API. 우리 타입(cloudschool_*)이 아닌 메시지는 무시하고, 아무것도 eval하지 않는다.
+ */
+function installCloudSchoolBridge(app: CodexApp, config: CodexConfig): void {
+  const knownIds = new Set(config.eras.flatMap((e) => e.treasures.map((t) => t.id)));
+  const host: BridgeHost = {
+    appId: config.toolId,
+    title: config.title,
+    knownIds,
+    collect: () => app.collect(),
+    restore: (payload, opts) => app.restoreValidated(payload, opts),
+    clearRestore: () => app.clearRestore(),
+  };
+  const api: CloudSchoolApp = {
+    version: CLOUDSCHOOL_PROTOCOL_VERSION,
+    appId: config.toolId,
+    title: config.title,
+    collect: () => app.collect(),
+    restore: async (payload, opts) => {
+      await app.restore(payload, opts);
+    },
+    clearRestore: () => app.clearRestore(),
+  };
+  window.CloudSchoolApp = api;
+
+  const embedded = window.parent !== window;
+  window.addEventListener("message", (event: MessageEvent) => {
+    if (!isInboundMessage(event.data)) return;
+    // 응답은 iframe 부모(프로토콜의 상대)로, 단독으로 열렸으면 보낸 창(팝업 opener 등)으로. 출처는 기록만 한다
+    // (교사 화면 배포 origin이 고정되지 않았다) — targetOrigin은 아직 "*".
+    const source = event.source;
+    const target: Window | null = embedded ? window.parent : source && !(source instanceof MessagePort) ? (source as Window) : null;
+    const reply = (msg: OutboundMessage) => {
+      try {
+        target?.postMessage(msg, "*");
+      } catch (err) {
+        console.warn(`[보물도감] 교사 화면으로 응답하지 못했습니다 (${event.origin}): ${err instanceof Error ? err.message : String(err)}`);
+      }
+    };
+    void handleBridgeMessage(host, event.data, reply, event.origin).catch((err: unknown) => {
+      console.warn(`[보물도감] 교사 화면 메시지 처리 실패 (${event.origin}): ${err instanceof Error ? err.message : String(err)}`);
+    });
+  });
+  if (embedded) window.parent.postMessage(readyMessage(host), "*");
+
+  if (window.location.hash === "#restore") {
+    window.setTimeout(() => {
+      if (!app.readonly) app.setRestoreHint(true);
+    }, RESTORE_HINT_DELAY_MS);
+  }
+}
 
 /**
  * 설정 로드 순서 — 교사가 config.json만 바꿔 핵심어를 교체할 수 있게 파일을 먼저 찾되,
@@ -43,7 +101,8 @@ async function boot(): Promise<void> {
     const { config, source } = await loadConfig();
     document.title = config.title;
     root.dataset["configSource"] = source === "embedded" ? "embedded" : "file";
-    await CodexApp.mount(root, config);
+    const app = await CodexApp.mount(root, config);
+    installCloudSchoolBridge(app, config);
   } catch (err) {
     root.replaceChildren(
       h("div", { class: "boot-error", role: "alert" }, icon("exclamation", "text-red-500 text-2xl"), h("p", {}, "도감을 불러오지 못했습니다."), h("p", { class: "text-xs text-slate-500" }, err instanceof Error ? err.message : String(err))),

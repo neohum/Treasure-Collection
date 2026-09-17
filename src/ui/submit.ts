@@ -2,7 +2,8 @@ import type { HubContext } from "../core/hub";
 import { submissionsUrl } from "../core/hub";
 import { submitWithQueue } from "../core/queue";
 import type { CodexStore } from "../core/storage";
-import { buildSubmission, extractAttachmentsFromRecords, validateSubmission } from "../core/submission";
+import { collectedToSubmission, type CloudSchoolCollected } from "../core/bridge";
+import { buildSubmission, validateSubmission } from "../core/submission";
 import { toIsoWithOffset, formatLocal } from "../core/time";
 import type { UnlockRecord } from "../core/types";
 import { h, icon } from "./dom";
@@ -16,6 +17,8 @@ export interface SubmitDeps {
   total: number;
   getLabel: () => string;
   getRecords: () => UnlockRecord[];
+  /** 전송 본문의 단일 출처 — 교사 화면 수집(window.CloudSchoolApp.collect)과 같은 함수다 */
+  collect: () => Promise<CloudSchoolCollected>;
   onDone: () => void;
 }
 
@@ -51,17 +54,11 @@ export function openSubmitModal(deps: SubmitDeps): void {
   async function send(): Promise<void> {
     sendBtn.disabled = true;
     status.textContent = "사진 압축 및 전송 준비 중…";
-    
-    // 사진 첨부파일 압축 추출
-    const attachments = await extractAttachmentsFromRecords(records);
-    const submission = buildSubmission({
-      toolId: deps.toolId,
-      studentLabel: label,
-      records,
-      total: deps.total,
-      submittedAt: toIsoWithOffset(),
-      attachments,
-    });
+
+    // 수집 payload(사진 압축 포함)에서 전송 API 계약 본문을 만든다 — collect()가 단일 출처
+    const collected = await deps.collect();
+    const attachments = collected.attachments;
+    const submission = collectedToSubmission(collected);
 
     status.textContent = "전송 중…";
 
