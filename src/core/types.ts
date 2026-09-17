@@ -52,6 +52,15 @@ export interface SubmissionItem {
   note: string;
 }
 
+/** 학생 작업 첨부 파일(유물 발굴 사진 등) */
+export interface SubmissionAttachment {
+  id: string;
+  name: string;
+  mimeType: string;
+  dataUrl: string;
+  size?: number;
+}
+
 export interface Submission {
   schema: 1;
   toolId: string;
@@ -59,6 +68,7 @@ export interface Submission {
   submittedAt: string;
   summary: { unlocked: number; total: number };
   items: SubmissionItem[];
+  attachments?: SubmissionAttachment[];
 }
 
 export const LIMITS = {

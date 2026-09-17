@@ -2,7 +2,7 @@ import type { HubContext } from "../core/hub";
 import { submissionsUrl } from "../core/hub";
 import { submitWithQueue } from "../core/queue";
 import type { CodexStore } from "../core/storage";
-import { buildSubmission, validateSubmission } from "../core/submission";
+import { buildSubmission, extractAttachmentsFromRecords, validateSubmission } from "../core/submission";
 import { toIsoWithOffset, formatLocal } from "../core/time";
 import type { UnlockRecord } from "../core/types";
 import { h, icon } from "./dom";
@@ -26,16 +26,18 @@ export interface SubmitDeps {
 export function openSubmitModal(deps: SubmitDeps): void {
   const label = deps.getLabel();
   const records = deps.getRecords();
-  const submission = buildSubmission({ toolId: deps.toolId, studentLabel: label, records, total: deps.total, submittedAt: toIsoWithOffset() });
-  const problem = validateSubmission(submission);
+  const photoCount = records.filter((r) => r.image instanceof Blob).length;
+  const initialSubmission = buildSubmission({ toolId: deps.toolId, studentLabel: label, records, total: deps.total, submittedAt: toIsoWithOffset() });
+  const problem = validateSubmission(initialSubmission);
 
   const status = h("p", { class: "field-error", id: "submitStatus", role: "status" }, problem ?? "");
+  const photoNotice = photoCount > 0 ? ` · 발굴 사진 ${photoCount}장 포함 (자동 압축)` : "";
   const summary = h(
     "div",
     { class: "info-box space-y-1" },
     h("p", {}, h("strong", {}, "보내는 사람: "), label ? `${label}번` : "번호 미입력"),
-    h("p", {}, h("strong", {}, "해금한 보물: "), `${submission.summary.unlocked} / ${submission.summary.total}`),
-    h("p", { class: "text-slate-500" }, "보내는 것: 번호, 해금한 유물 목록, 해금 시각, 한 줄 소감. 사진은 보내지 않아요."),
+    h("p", {}, h("strong", {}, "해금한 보물: "), `${initialSubmission.summary.unlocked} / ${initialSubmission.summary.total}`),
+    h("p", { class: "text-slate-500" }, `보내는 것: 번호, 해금한 유물 목록, 해금 시각, 한 줄 소감${photoNotice}`),
   );
 
   const sendBtn = button("선생님께 전송", {
@@ -48,7 +50,46 @@ export function openSubmitModal(deps: SubmitDeps): void {
 
   async function send(): Promise<void> {
     sendBtn.disabled = true;
+    status.textContent = "사진 압축 및 전송 준비 중…";
+    
+    // 사진 첨부파일 압축 추출
+    const attachments = await extractAttachmentsFromRecords(records);
+    const submission = buildSubmission({
+      toolId: deps.toolId,
+      studentLabel: label,
+      records,
+      total: deps.total,
+      submittedAt: toIsoWithOffset(),
+      attachments,
+    });
+
     status.textContent = "전송 중…";
+
+    // 1. iframe 부모 윈도우(do.io.kr 인앱 뷰어 모달)로 postMessage 전송
+    if (typeof window !== "undefined" && window.parent && window.parent !== window) {
+      try {
+        window.parent.postMessage(
+          {
+            type: "edulinker_submission",
+            source: "treasure-codex",
+            payload: {
+              appId: deps.toolId,
+              appTitle: "5학년 역사 디지털 보물도감",
+              studentKey: label,
+              deviceLabel: label ? `${label}번` : "학생 기기",
+              comment: records.map((r) => r.note).filter(Boolean).join(" / "),
+              data: submission,
+              attachments,
+            },
+          },
+          "*"
+        );
+      } catch (e) {
+        console.warn("[TreasureCodex] postMessage failed:", e);
+      }
+    }
+
+    // 2. 허브 API 전송 (로컬 LAN 허브)
     const url = submissionsUrl(deps.hub);
     const { result, flushed, queued } = await submitWithQueue(deps.store, url, submission);
     if (result.ok) {
@@ -58,7 +99,7 @@ export function openSubmitModal(deps: SubmitDeps): void {
         { class: "info-box info-box-amber space-y-1", id: "submitReceipt" },
         h("p", { class: "font-bold flex items-center gap-1" }, icon("badge-check", "text-emerald-600"), h("span", {}, "선생님 런처에 도착했습니다!")),
         h("p", {}, h("strong", {}, "영수증 번호: "), h("code", { "data-role": "receipt-id" }, result.receiptId)),
-        h("p", { class: "text-slate-500" }, `접수 시각 ${formatLocal(result.receivedAt)}${flushed.sent > 0 ? ` · 밀린 기록 ${flushed.sent}건도 함께 보냈어요` : ""}`),
+        h("p", { class: "text-slate-500" }, `접수 시각 ${formatLocal(result.receivedAt)}${flushed.sent > 0 ? ` · 밀린 기록 ${flushed.sent}건도 함께 보냈어요` : ""}${attachments.length > 0 ? ` · 사진 ${attachments.length}장 첨부됨` : ""}`),
       );
       summary.replaceWith(receipt);
       sendBtn.replaceWith(button("닫기", { variant: "primary", onclick: closeModal }));

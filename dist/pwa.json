@@ -1,0 +1,20 @@
+{
+  "name": "역사 보물도감",
+  "short_name": "보물도감",
+  "description": "한 차시마다 유물을 하나씩 수집해 완성하는 5학년 역사 디지털 보물도감",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#d97706",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

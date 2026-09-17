@@ -2,10 +2,11 @@ node_modules/
 .env
 .env.local
 .DS_Store
-.next/
-dist/
+# dist/ (Cloud-School 배포용 번들 산출물 보존)
+# dist/
 build/
 *.log
+*.zip
 
 # autonomous-loop local state (created at runtime, never committed)
 # cooldown.json holds per-agent rate-limit reset times; lock files coordinate

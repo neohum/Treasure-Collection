@@ -89,6 +89,25 @@ export class CodexApp {
       onchange: () => void this.saveLabel(labelInput.value),
     }) as HTMLInputElement;
 
+    const backBtn = h(
+      "button",
+      {
+        type: "button",
+        class: "btn btn-secondary btn-sm no-print flex items-center gap-1 shrink-0",
+        title: "이전으로 가기",
+        id: "btn-back-to-portal",
+        onclick: () => {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = "/student/dashboard/materials";
+          }
+        },
+      },
+      icon("arrow-left"),
+      h("span", { class: "hidden xs:inline" }, "이전으로"),
+    );
+
     return h(
       "header",
       { class: "app-header" },
@@ -97,7 +116,8 @@ export class CodexApp {
         { class: "app-header-inner" },
         h(
           "div",
-          { class: "flex items-center gap-3" },
+          { class: "flex items-center gap-2 sm:gap-3" },
+          backBtn,
           h("img", { src: "./logo.svg", alt: "", width: "40", height: "40", class: "app-logo" }),
           h("div", {}, h("h1", { class: "app-title" }, this.config.title), h("p", { class: "app-subtitle" }, "5학년 사회 · 시대별 대표 보물 20종")),
         ),

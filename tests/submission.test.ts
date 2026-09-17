@@ -51,4 +51,28 @@ describe("buildSubmission (AC-4)", () => {
     const ok = buildSubmission({ toolId: "t", studentLabel: "3", records, total: 20, submittedAt: "x" });
     expect(validateSubmission(ok)).toBeNull();
   });
+
+  it("attachments가 전달되면 Submission 최상위 attachments에 정상 포함된다", () => {
+    const s = buildSubmission({
+      toolId: "t",
+      studentLabel: "3",
+      records,
+      total: 20,
+      submittedAt: "2026-09-17T13:00:00+09:00",
+      attachments: [
+        {
+          id: "att-1",
+          name: "유물사진.jpg",
+          mimeType: "image/jpeg",
+          dataUrl: "data:image/jpeg;base64,ZmFrZQ==",
+          size: 100,
+        },
+      ],
+    });
+
+    expect(s.attachments).toBeDefined();
+    expect(s.attachments).toHaveLength(1);
+    expect(s.attachments![0].name).toBe("유물사진.jpg");
+    expect(s.attachments![0].dataUrl).toMatch(/^data:image\/jpeg;base64,/);
+  });
 });
