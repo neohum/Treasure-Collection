@@ -31,12 +31,39 @@ export interface PackResult {
   disallowed: string[];
 }
 
+/**
+ * 마켓 보안 감사 사전검사. 마켓 심사기는 문자열 매칭으로 스킴 주입을 찾는다(2026-09-17 차단 사유:
+ * Flaticon 아이콘 클래스 `.fi-rr-javascript:before`와 favicon의 `type="image/svg+xml"`). 실제 위험이
+ * 아니어도 출품이 막히므로, 같은 문자열이 번들에 다시 들어오면 여기서 먼저 잡는다.
+ */
+const TEXT_AUDIT: Array<{ ext: RegExp; needles: string[] }> = [
+  { ext: /\.(html|css|js)$/i, needles: ["javascript:", "vbscript:"] },
+  { ext: /\.(html|css)$/i, needles: ["data:", "svg+xml"] },
+];
+
+export function auditBundleText(files: import("./integrity-hash").BundleFiles): string[] {
+  const hits: string[] = [];
+  const decoder = new TextDecoder();
+  for (const [path, bytes] of files) {
+    for (const rule of TEXT_AUDIT) {
+      if (!rule.ext.test(path)) continue;
+      const text = decoder.decode(bytes);
+      for (const needle of rule.needles) if (text.includes(needle)) hits.push(`${path}: "${needle}"`);
+    }
+  }
+  return hits;
+}
+
 export function packBundle(distDir: string, meta: { id: string; name: string; version: string; category: string }): PackResult {
   if (!existsSync(resolve(distDir, "index.html"))) throw new Error(`${distDir}에 index.html이 없습니다. 먼저 pnpm build를 실행하세요.`);
   const files = readBundleDir(distDir);
   const disallowed = disallowedFiles(files);
   if (disallowed.length > 0) {
     throw new Error(`허브 허용 확장자(${ALLOWED_EXTENSIONS.join(" ")}) 밖의 파일: ${disallowed.join(", ")}`);
+  }
+  const auditHits = auditBundleText(files);
+  if (auditHits.length > 0) {
+    throw new Error(`마켓 보안 감사에 걸리는 문자열: ${auditHits.join("; ")}`);
   }
   const manifest: ToolDistributionManifest = {
     id: meta.id,

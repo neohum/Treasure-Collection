@@ -59,8 +59,7 @@ export async function extractAttachmentsFromRecords(records: UnlockRecord[]): Pr
   const attachments: SubmissionAttachment[] = [];
   const photoRecords = records.filter((r) => r.image instanceof Blob);
 
-  for (let i = 0; i < photoRecords.length; i++) {
-    const r = photoRecords[i];
+  for (const r of photoRecords) {
     if (r.image) {
       const dataUrl = await compressBlobToDataUrl(r.image);
       if (dataUrl) {

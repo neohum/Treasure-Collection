@@ -72,7 +72,7 @@ describe("buildSubmission (AC-4)", () => {
 
     expect(s.attachments).toBeDefined();
     expect(s.attachments).toHaveLength(1);
-    expect(s.attachments![0].name).toBe("유물사진.jpg");
-    expect(s.attachments![0].dataUrl).toMatch(/^data:image\/jpeg;base64,/);
+    expect(s.attachments?.[0]?.name).toBe("유물사진.jpg");
+    expect(s.attachments?.[0]?.dataUrl).toMatch(/^data:image\/jpeg;base64,/);
   });
 });

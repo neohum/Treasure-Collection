@@ -58,6 +58,15 @@ describe("pack-bundle (AC-1, AC-3)", () => {
     expect(() => packBundle(dir2, meta)).toThrow(/pwa\.webmanifest/);
   });
 
+  it("마켓 감사에 걸리는 문자열(javascript:, data:, svg+xml)이 html/css에 있으면 실패한다", () => {
+    const bad = makeDist({ "index.html": '<link rel="icon" href="a.svg" type="image/svg+xml">', "assets/a.css": ".fi-rr-javascript:before{content:\"x\"}" });
+    expect(() => packBundle(bad, meta)).toThrow(/index\.html: "svg\+xml"/);
+    expect(() => packBundle(bad, meta)).toThrow(/assets\/a\.css: "javascript:"/);
+    // JS 안의 data: 는 정상 코드(내보내기 data URL)라 허용, html/css만 본다
+    const ok = makeDist({ "index.html": "<html></html>", "assets/a.js": 'const u = "data:" + t;' });
+    expect(() => packBundle(ok, meta)).not.toThrow();
+  });
+
   it("index.html이 없으면 빌드를 먼저 하라고 실패한다", () => {
     const dir = makeDist({ "assets/app.js": "1" });
     expect(() => packBundle(dir, meta)).toThrow(/pnpm build/);
