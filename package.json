@@ -4,6 +4,16 @@
   "private": true,
   "type": "module",
   "description": "5학년 역사 디지털 보물도감 — 크롬북 PWA, all_market 교실 허브 번들",
+  "license": "MIT",
+  "author": {
+    "name": "neohum (정일)",
+    "email": "neohum77@gmail.com",
+    "url": "https://github.com/neohum"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neohum/Treasure-Collection.git"
+  },
   "scripts": {
     "dev": "vite",
     "prebuild": "tsx scripts/build-config.ts",

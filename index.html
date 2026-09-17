@@ -7,7 +7,8 @@
     <meta name="description" content="한 차시마다 유물을 하나씩 수집해 완성하는 5학년 역사 디지털 보물도감" />
     <meta name="theme-color" content="#d97706" />
     <link rel="icon" href="./favicon.ico" sizes="32x32" />
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <!-- SVG 파비콘의 type 속성은 일부러 뺐다: Chrome은 확장자로 인식하고, 마켓 보안 감사가 그 MIME 문자열을 스킴 주입으로 오탐한다 (scripts/pack-bundle.ts auditBundleText 참고) -->
+    <link rel="icon" href="./favicon.svg" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="manifest" href="./pwa.json" />
   </head>

@@ -1,0 +1,22 @@
+$ pnpm typecheck
+ok
+$ pnpm lint
+ok
+$ pnpm test
+ Test Files  13 passed (13)
+      Tests  46 passed (46)
+$ pnpm build && pnpm pack:bundle
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-BIqitrfE.css                               70.45 kB │ gzip: 11.28 kB
+dist/assets/index-C-QGa4Eo.js                                30.05 kB │ gzip: 11.42 kB
+[32m✓ built in 256ms[39m
+번들 확정: 파일 16개, 560 KB, sha256:d4936c56ae290e9e9ec43636e61bb40663f92f076b6eed6627e355f178a51a89
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+$ audit strings in dist html/css
+(none)
+$ icon rules kept
+27
+$ pnpm e2e
+  11 passed (10.3s)
+$ ls LICENSE
+LICENSE
