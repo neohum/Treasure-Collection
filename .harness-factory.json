@@ -3,14 +3,21 @@
   "timezone": "Asia/Seoul",
   "schedule": "hourly",
   "workers": 3,
-  "providerLanes": ["codex", "agy"],
+  "providerLanes": [
+    "codex",
+    "agy"
+  ],
   "autoConfigure": true,
   "github": {
     "autoBootstrap": true
   },
   "continuity": {
     "neverStop": true,
-    "failoverOrder": ["agy", "codex", "claude"],
+    "failoverOrder": [
+      "agy",
+      "codex",
+      "claude"
+    ],
     "modelFallbackEnv": "<PROVIDER>_FALLBACK_MODELS"
   },
   "marketIntervalHours": 24,
