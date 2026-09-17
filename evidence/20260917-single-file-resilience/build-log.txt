@@ -1,0 +1,29 @@
+$ CODEX_KEYWORDS=example pnpm build && pnpm pack:bundle   (2026-09-17, Asia/Seoul, PREVIEW_PORT=4183 worktree)
+
+> treasure-codex@0.1.0 prebuild D:\works\Treasure-Collection\.claude\worktrees\agent-a244b2de0f32fa7e7
+> tsx scripts/build-config.ts
+
+config.json 생성: 유물 20종, 핵심어 출처 src/data/keywords.example.json (예시)
+
+> treasure-codex@0.1.0 build D:\works\Treasure-Collection\.claude\worktrees\agent-a244b2de0f32fa7e7
+> vite build
+
+[36mvite v8.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 26 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                               1.08 kB │ gzip:  0.69 kB
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-BfLEYFyG.css                               70.60 kB │ gzip: 11.33 kB
+dist/assets/index-WtujNAZa.js                                40.80 kB │ gzip: 17.05 kB
+
+[32m✓ built in 301ms[39m
+exitCode=0
+
+> treasure-codex@0.1.0 pack:bundle D:\works\Treasure-Collection\.claude\worktrees\agent-a244b2de0f32fa7e7
+> tsx scripts/pack-bundle.ts
+
+번들 확정: 파일 16개, 570 KB, sha256:c617fca490daea0bfe06b99d0109491a8ff60e8b3b1cc5254a350578f483a452
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+pack exitCode=0

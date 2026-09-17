@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "single-file-resilience",
+  "productionBuild": {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/index.html",
+    "log": "evidence/20260917-single-file-resilience/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4183/",
+    "readyMethod": "PREVIEW_PORT=4183 pnpm preview → curl http://127.0.0.1:4183/ (200, 1085 bytes) 및 /assets/index-BfLEYFyG.css (200) + Playwright e2e 15건(단일 HTML 시뮬레이션·CDN 폴백 포함)",
+    "readyStatus": 200,
+    "process": {
+      "pid": 43792,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260917-single-file-resilience/single-file-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

@@ -2,8 +2,8 @@ import { defineConfig } from "vitest/config";
 import tailwindcss from "@tailwindcss/vite";
 import type { Plugin } from "vite";
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { dirname, join, relative, resolve, sep } from "node:path";
 
 /** src/ 아래 .ts 파일에서 실제로 쓰는 fi-rr 아이콘 이름을 모은다 (icon("x"), icon: "x", 리터럴 fi-rr-x). */
 export function collectUsedIconNames(srcDir = join(import.meta.dirname, "src")): Set<string> {
@@ -77,13 +77,58 @@ function codexConfigPlugin(): Plugin {
   };
 }
 
+/**
+ * 최종 CSS의 아이콘 폰트 `src:`를 세 단계 폴백으로 넓힌다 (2026-09-17 cloud-school 배포 관찰: index.html만
+ * JS·CSS를 인라인해 올리고 나머지 파일은 전부 404 → 아이콘이 전부 빈칸).
+ *  1) `./<hash>.woff2`         — Vite가 낸 그대로. assets/ 안의 CSS에서 열린다 (허브·GitHub Pages, 오프라인)
+ *  2) `./assets/<hash>.woff2`  — CSS가 번들 루트 index.html에 인라인됐을 때 열린다
+ *  3) jsDelivr CDN            — index.html 하나만 살아남은 인터넷 배포에서 열린다
+ * 브라우저는 앞에서부터 시도해 처음 성공한 소스에서 멈추므로 교실 LAN에서는 CDN 요청이 나가지 않는다.
+ * data: URL은 마켓 보안 감사(`scripts/pack-bundle.ts` auditBundleText)가 거부하므로 쓰지 않는다.
+ */
+export function withIconFontFallbacks(css: string, cdnUrl: string): string {
+  return css.replace(
+    /src:\s*url\((["']?)\.\/([^)"']+\.woff2)\1\)\s*format\("woff2"\);/g,
+    (_m, _q, file: string) =>
+      `src:url(./${file})format("woff2"),url(./assets/${file})format("woff2"),url(${cdnUrl})format("woff2");`,
+  );
+}
+
+const UICONS_PKG = join(import.meta.dirname, "node_modules", "@flaticon", "flaticon-uicons");
+
+/** 설치된 패키지 안의 실제 woff2 경로로 jsDelivr URL을 만든다 — 파일명에 해시가 붙어 버전마다 달라진다. */
+export function uiconsCdnUrl(cssFileId: string, originalCss: string): string {
+  const { version } = JSON.parse(readFileSync(join(UICONS_PKG, "package.json"), "utf8")) as { version: string };
+  const m = /url\((["']?)([^)"']+\.woff2)\1\)/.exec(originalCss);
+  if (!m) throw new Error("flaticon-uicons CSS에서 woff2 src를 찾지 못했습니다");
+  const abs = resolve(dirname(cssFileId), m[2]!);
+  if (!existsSync(abs)) throw new Error(`flaticon-uicons woff2가 패키지에 없습니다: ${abs}`);
+  // pnpm은 node_modules/@flaticon/… 를 .pnpm/ 아래 실경로로 심볼릭 링크하고 Vite id는 실경로다 → 둘 다 실경로로 비교
+  const inPkg = relative(realpathSync(UICONS_PKG), realpathSync(abs)).split(sep).join("/");
+  if (inPkg.startsWith("..")) throw new Error(`flaticon-uicons woff2가 패키지 밖을 가리킵니다: ${inPkg}`);
+  return `https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons@${version}/${inPkg}`;
+}
+
 function trimIconFontCss(): Plugin {
+  let cdnUrl = "";
   return {
     name: "treasure-codex:trim-icon-css",
     enforce: "pre",
     transform(code, id) {
       if (!/@flaticon[\\/]flaticon-uicons[\\/].*\.css$/.test(id)) return null;
+      cdnUrl = uiconsCdnUrl(id, code);
       return { code: trimIconCss(code, collectUsedIconNames()), map: null };
+    },
+    // Vite가 woff2를 해시 이름으로 내보내고 CSS를 압축한 뒤(최종 산출물)에서만 폴백을 덧붙인다.
+    generateBundle(_options, bundle) {
+      for (const item of Object.values(bundle)) {
+        if (item.type !== "asset" || !item.fileName.endsWith(".css")) continue;
+        if (!cdnUrl) throw new Error("아이콘 폰트 CDN URL이 준비되지 않았습니다 (flaticon CSS transform이 돌지 않음)");
+        const css = typeof item.source === "string" ? item.source : new TextDecoder().decode(item.source);
+        const out = withIconFontFallbacks(css, cdnUrl);
+        if (out === css) throw new Error(`${item.fileName}: 아이콘 폰트 src를 찾지 못해 폴백을 붙이지 못했습니다`);
+        item.source = out;
+      }
     },
   };
 }
