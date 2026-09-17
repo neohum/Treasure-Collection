@@ -1,0 +1,24 @@
+
+> treasure-codex@0.1.0 e2e D:\works\Treasure-Collection\.claude\worktrees\agent-a244b2de0f32fa7e7
+> playwright test
+
+
+Running 15 tests using 4 workers
+
+  ok  4 [chromebook] › tests\e2e\single-file.spec.ts:60:3 › 단일 HTML 배포 내성 (cloud-school 404 회귀) › AC-1: 로컬 woff2가 전부 404여도 CDN 폴백으로 아이콘 폰트가 로드된다 (CDN 요청 정확히 1회) (1.2s)
+  ok  1 [chromebook] › tests\e2e\codex.spec.ts:22:3 › 보물도감 화면 › 핵심어 입력으로 해금되고 오답은 거부된다 (AC-1) (1.2s)
+  ok  2 [chromebook] › tests\e2e\smoke.spec.ts:4:3 › config.json 로드 견고성 (cloud-school 뷰어 404 회귀) › index.html이 번들과 다른 경로에서 열려도 스크립트 위치 기준으로 config.json을 찾는다 (1.3s)
+  ok  5 [chromebook] › tests\e2e\single-file.spec.ts:82:3 › 단일 HTML 배포 내성 (cloud-school 404 회귀) › AC-2: index.html만 살아남은 배포(JS·CSS 인라인, 나머지 404)에서도 도감·로고·아이콘이 모두 뜬다 (769ms)
+  ok  7 [chromebook] › tests\e2e\smoke.spec.ts:16:3 › config.json 로드 견고성 (cloud-school 뷰어 404 회귀) › config.json이 어디에도 없어도 내장 설정으로 도감이 뜬다 (539ms)
+  ok  3 [chromebook] › tests\e2e\submit.spec.ts:31:3 › 전송 버튼 › 허브 경로에서 [전송]이 계약 본문을 POST하고 영수증을 보여 준다 (AC-1, AC-4) (2.4s)
+  ok  6 [chromebook] › tests\e2e\codex.spec.ts:43:3 › 보물도감 화면 › 사진 등록으로 해금되고 새로고침 후에도 유지된다 (AC-2) (1.2s)
+  ok  8 [chromebook] › tests\e2e\smoke.spec.ts:32:1 › production 빌드가 열리고 아이콘 폰트가 로드된다 (676ms)
+  ok 10 [chromebook] › tests\e2e\codex.spec.ts:65:3 › 보물도감 화면 › 아이콘은 전부 fi fi-rr이며 FontAwesome·이모지·인라인 SVG 아이콘이 없다 (AC-3) (551ms)
+  ok 11 [chromebook] › tests\e2e\codex.spec.ts:86:3 › 보물도감 화면 › 학생 소감은 HTML로 해석되지 않는다 (AC-4) (881ms)
+  ok  9 [chromebook] › tests\e2e\submit.spec.ts:69:3 › 전송 버튼 › 허브가 응답하지 못하면 큐에 남고 다음 [전송]에서 재시도된다 (AC-2) (1.6s)
+  ok 13 [chromebook] › tests\e2e\submit.spec.ts:107:3 › 전송 버튼 › 허브 경로가 아니면 같은 자리의 버튼이 [내보내기]가 되고 JSON을 내려받는다 (AC-3) (830ms)
+  ok 12 [chromebook] › tests\e2e\codex.spec.ts:100:3 › 보물도감 화면 › 크롬북·데스크톱·모바일 뷰포트 스크린샷과 인쇄 레이아웃 (AC-5, AC-6) (1.4s)
+  ok 14 [chromebook] › tests\e2e\submit.spec.ts:125:3 › 전송 버튼 › 번호가 비어 있으면 전송 버튼이 막히고 안내가 뜬다 (AC-5) (686ms)
+  ok 15 [chromebook] › tests\e2e\codex.spec.ts:126:3 › 보물도감 화면 › 초기화하면 모든 기록이 사라진다 (618ms)
+
+  15 passed (9.7s)

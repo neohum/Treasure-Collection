@@ -19,7 +19,7 @@ html {
 /* ── 레이아웃 ─────────────────────────────────────────────── */
 .app-header { @apply bg-slate-900 text-white shadow-md sticky top-0 z-30; }
 .app-header-inner { @apply max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3; }
-.app-logo { @apply rounded-xl bg-amber-500 p-1; }
+.app-logo { @apply rounded-xl shrink-0; }
 .app-title { @apply text-lg md:text-xl font-bold tracking-tight text-amber-400; }
 .app-subtitle { @apply text-xs text-slate-400; }
 .app-main { @apply max-w-6xl mx-auto px-4 mt-6 pb-16 space-y-6; }

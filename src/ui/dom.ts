@@ -34,6 +34,19 @@ export function clear(el: Element): void {
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/**
+ * 인라인 SVG 요소를 DOM API로 만든다 (브랜드 로고 전용 — 아이콘은 여전히 `icon()`의 fi fi-rr만 쓴다).
+ * 별도 파일·data: URL 없이 그리므로 index.html 하나만 배포된 환경에서도 깨진 이미지가 생기지 않는다.
+ */
+export function svg<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number> = {}, ...children: SVGElement[]): SVGElementTagNameMap[K] {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, String(value));
+  for (const child of children) el.appendChild(child);
+  return el;
+}
+
 /** 아이콘 단일 표준: `fi fi-rr-<name>` (Flaticon UIcons Regular Rounded) */
 export function icon(name: string, extraClass = ""): HTMLElement {
   return h("i", { class: `fi fi-rr-${name}${extraClass ? " " + extraClass : ""}`, "aria-hidden": "true" });

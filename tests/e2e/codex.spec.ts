@@ -68,7 +68,8 @@ test.describe("보물도감 화면", () => {
     const audit = await page.evaluate(() => {
       const all = Array.from(document.querySelectorAll("i, svg, .fa, .fa-solid, [class*='fa-']"));
       const bad = all.filter((el) => {
-        if (el.tagName.toLowerCase() === "svg") return true;
+        // 헤더 브랜드 로고(svg.app-logo[role=img])는 아이콘이 아니라 마크다 — 단일 HTML 배포에서도 살아남도록 인라인으로 그린다
+        if (el.tagName.toLowerCase() === "svg") return !(el.classList.contains("app-logo") && el.getAttribute("role") === "img");
         const cls = el.getAttribute("class") ?? "";
         return !(/(^|\s)fi(\s|$)/.test(cls) && /fi-rr-[a-z0-9-]+/.test(cls));
       });

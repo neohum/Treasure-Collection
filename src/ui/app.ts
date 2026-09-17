@@ -7,6 +7,7 @@ import { LIMITS, type CodexConfig, type EraCategory, type Treasure, type UnlockR
 import { detectHub, type HubContext } from "../core/hub";
 import { renderCard } from "./card";
 import { append, clear, h, icon } from "./dom";
+import { renderLogo } from "./logo";
 import { button, closeModal, confirmModal, openModal } from "./modals";
 import { openSubmitModal } from "./submit";
 import { showToast } from "./toast";
@@ -118,7 +119,8 @@ export class CodexApp {
           "div",
           { class: "flex items-center gap-2 sm:gap-3" },
           backBtn,
-          h("img", { src: "./logo.svg", alt: "", width: "40", height: "40", class: "app-logo" }),
+          // 파일이 아니라 인라인 SVG: index.html만 살아남는 배포에서도 로고가 깨지지 않는다 (src/ui/logo.ts)
+          renderLogo(40),
           h("div", {}, h("h1", { class: "app-title" }, this.config.title), h("p", { class: "app-subtitle" }, "5학년 사회 · 시대별 대표 보물 20종")),
         ),
         h(
