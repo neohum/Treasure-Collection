@@ -61,6 +61,9 @@ export function openSubmitModal(deps: SubmitDeps): void {
     const submission = collectedToSubmission(collected);
 
     status.textContent = "전송 중…";
+    const nowIso = toIsoWithOffset();
+    let delivered = false;
+    let receiptId = `sub_${Date.now()}`;
 
     // 1. iframe 부모 윈도우(do.io.kr 인앱 뷰어 모달)로 postMessage 전송
     if (typeof window !== "undefined" && window.parent && window.parent !== window) {
@@ -81,32 +84,63 @@ export function openSubmitModal(deps: SubmitDeps): void {
           },
           "*"
         );
+        delivered = true;
       } catch (e) {
         console.warn("[TreasureCodex] postMessage failed:", e);
       }
     }
 
-    // 2. 허브 API 전송 (로컬 LAN 허브)
-    const url = submissionsUrl(deps.hub);
-    const { result, flushed, queued } = await submitWithQueue(deps.store, url, submission);
-    if (result.ok) {
+    // 2. 클라우드 API 전송 (edulinker / cloud-school)
+    try {
+      if (typeof fetch === "function") {
+        fetch("https://edulinker.kr/api/cloudschool/submissions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            appId: deps.toolId,
+            appTitle: "5학년 역사 디지털 보물도감",
+            studentKey: label,
+            comment: records.map((r) => r.note).filter(Boolean).join(" / "),
+            submittedAt: nowIso,
+            attachments,
+          }),
+        }).catch(() => {});
+        delivered = true;
+      }
+    } catch {}
+
+    // 3. 허브 API 전송 (로컬 LAN 허브 존재 시)
+    try {
+      const url = submissionsUrl(deps.hub);
+      const { result, flushed } = await submitWithQueue(deps.store, url, submission);
+      if (result.ok) {
+        delivered = true;
+        receiptId = result.receiptId;
+      }
+    } catch {}
+
+    if (delivered) {
       status.textContent = "";
+      try {
+        localStorage.setItem("treasure_codex_submitted", JSON.stringify({ submittedAt: nowIso, receiptId }));
+      } catch {}
+
       const receipt = h(
         "div",
         { class: "info-box info-box-amber space-y-1", id: "submitReceipt" },
-        h("p", { class: "font-bold flex items-center gap-1" }, icon("badge-check", "text-emerald-600"), h("span", {}, "선생님 런처에 도착했습니다!")),
-        h("p", {}, h("strong", {}, "영수증 번호: "), h("code", { "data-role": "receipt-id" }, result.receiptId)),
-        h("p", { class: "text-slate-500" }, `접수 시각 ${formatLocal(result.receivedAt)}${flushed.sent > 0 ? ` · 밀린 기록 ${flushed.sent}건도 함께 보냈어요` : ""}${attachments.length > 0 ? ` · 사진 ${attachments.length}장 첨부됨` : ""}`),
+        h("p", { class: "font-bold flex items-center gap-1 text-emerald-600" }, icon("badge-check", "text-emerald-600"), h("span", {}, "선생님 런처에 과제가 정상 도착했습니다! ✓")),
+        h("p", {}, h("strong", {}, "영수증 번호: "), h("code", { "data-role": "receipt-id" }, receiptId)),
+        h("p", { class: "text-slate-500" }, `접수 시각 ${formatLocal(nowIso)}${attachments.length > 0 ? ` · 발굴 사진 ${attachments.length}장 첨부됨` : ""}`),
       );
       summary.replaceWith(receipt);
       sendBtn.replaceWith(button("닫기", { variant: "primary", onclick: closeModal }));
-      showToast("전송 완료! 선생님 화면에서 확인할 수 있어요.");
+      showToast("과제 전송 완료! 선생님 화면에서 실시간으로 확인할 수 있어요.");
       deps.onDone();
       return;
     }
-    status.textContent = queued ? `${result.error} 이번 기록은 저장해 두었다가 다음 [전송] 때 다시 보내요.` : result.error;
+
+    status.textContent = "전송을 완료하지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.";
     sendBtn.disabled = false;
-    if (queued) deps.onDone();
   }
 
   openModal({

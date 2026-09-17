@@ -1,12 +1,12 @@
 {
   "_comment": "create-agent-harness provenance - harness-owned; refreshed on scaffold and --update",
   "schema": 1,
-  "version": "0.4.26",
+  "version": "0.4.27",
   "projectName": "Treasure-Collection",
   "minNode": ">=22.18",
   "mode": "autonomous",
-  "commit": "3a44f090e413df9ed196bc8de78b386ae45a85e1",
+  "commit": "effaae7f25086dc9168e0fed2e1c0dfa38549cd5",
   "branch": "main",
   "remoteUrl": "https://github.com/neohum/create-agent-harness.git",
-  "stampedAt": "2026-09-17T03:04:29.598Z"
+  "stampedAt": "2026-09-17T22:48:33.864Z"
 }

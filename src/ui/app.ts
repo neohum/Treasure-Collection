@@ -76,10 +76,10 @@ export class CodexApp {
   }
 
   private openSubmit(): void {
-    if (!this.hub || this.readonly) return;
+    if (this.readonly) return;
     openSubmitModal({
       store: this.store,
-      hub: this.hub,
+      hub: this.hub || ({ base: window.location.origin } as any),
       toolId: this.config.toolId,
       total: this.total,
       getLabel: () => this.studentLabel,
@@ -247,20 +247,47 @@ export class CodexApp {
   }
 
   private renderMutatingButtons(): HTMLElement[] {
+    let lastSubmitTime = "";
+    try {
+      const raw = localStorage.getItem("treasure_codex_submitted");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.submittedAt) {
+          lastSubmitTime = new Date(parsed.submittedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+        }
+      }
+    } catch {}
+
     return [
-      // 허브에서 열렸으면 [전송], 아니면(GitHub Pages·로컬) 같은 자리의 버튼이 [내보내기]가 된다.
-      this.hub
+      h(
+        "button",
+        {
+          type: "button",
+          class: `btn ${lastSubmitTime ? "btn-secondary" : "btn-primary"} btn-sm`,
+          onclick: () => this.openSubmit(),
+          title: "선생님께 전송",
+          id: "btn-submit",
+          "data-pending": String(this.pendingCount),
+        },
+        icon("paper-plane"),
+        h("span", {}, lastSubmitTime ? "다시 전송" : "선생님께 전송"),
+        this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `미전송 ${this.pendingCount}건`) : null,
+      ),
+      lastSubmitTime
         ? h(
-            "button",
-            { type: "button", class: "btn btn-primary btn-sm", onclick: () => this.openSubmit(), title: "선생님께 전송", id: "btn-submit", "data-pending": String(this.pendingCount) },
-            icon("paper-plane"),
-            h("span", {}, "전송"),
-            this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `아직 전송되지 않은 기록 ${this.pendingCount}건`) : null,
+            "span",
+            {
+              class: "badge text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 py-1 px-2.5 rounded-full inline-flex items-center gap-1",
+              title: `선생님 런처로 과제가 전달되었습니다 (${lastSubmitTime})`,
+            },
+            icon("badge-check", "text-emerald-600"),
+            h("span", {}, `과제 제출 완료 (${lastSubmitTime})`),
           )
-        : h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
+        : null,
+      h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
       h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => this.importJson(), title: "가져오기", id: "btn-import" }, icon("upload"), h("span", { class: "hidden sm:inline" }, "가져오기")),
       h("button", { type: "button", class: "btn btn-danger-ghost btn-sm", onclick: () => void this.reset(), title: "초기화", "aria-label": "초기화", id: "btn-reset" }, icon("rotate-right")),
-    ];
+    ].filter(Boolean) as HTMLElement[];
   }
 
   private renderMain(): HTMLElement {
