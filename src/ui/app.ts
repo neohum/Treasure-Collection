@@ -5,12 +5,19 @@ import { checkKeyword } from "../core/unlock";
 import { exportProgress, importProgress, ImportError } from "../core/export";
 import { LIMITS, type CodexConfig, type EraCategory, type Treasure, type UnlockRecord } from "../core/types";
 import { detectHub, type HubContext } from "../core/hub";
+import { collectSnapshot, collectedToRecords, validateCollected, type CloudSchoolCollected } from "../core/bridge";
 import { renderCard } from "./card";
 import { append, clear, h, icon } from "./dom";
 import { renderLogo } from "./logo";
 import { button, closeModal, confirmModal, openModal } from "./modals";
 import { openSubmitModal } from "./submit";
 import { showToast } from "./toast";
+
+/** 교사 화면이 고른 학생의 제출물을 읽기 전용으로 그리는 동안의 상태. IndexedDB에는 아무것도 쓰지 않는다. */
+interface RestoreView {
+  payload: CloudSchoolCollected;
+  studentName?: string;
+}
 
 /**
  * 도감 앱 상태와 렌더. 상태가 바뀌면 그리드를 통째로 다시 그린다(유물 20종이라 충분히 싸다).
@@ -24,6 +31,10 @@ export class CodexApp {
   private objectUrls: string[] = [];
   private justUnlocked: string | null = null;
   private pendingCount = 0;
+  /** 읽기 전용 재생 중이면 존재. progress·studentLabel은 이 payload에서 온 메모리 값으로 바뀐다. */
+  private restoreView: RestoreView | null = null;
+  /** `#restore`로 열렸는데 3초 안에 아무 제출물도 오지 않았을 때의 안내 */
+  private restoreHint = false;
   /** 허브(/dist/{toolID}/)에서 열렸을 때만 존재. 없으면 [전송] 대신 [내보내기]. */
   private readonly hub: HubContext | null;
 
@@ -49,6 +60,15 @@ export class CodexApp {
     return this.config.eras.reduce((n, e) => n + e.treasures.length, 0);
   }
 
+  /** 읽기 전용 재생 중인가 (교사 화면이 학생 제출물을 보는 중). */
+  get readonly(): boolean {
+    return this.restoreView !== null;
+  }
+
+  private get knownIds(): Set<string> {
+    return new Set(this.config.eras.flatMap((e) => e.treasures.map((t) => t.id)));
+  }
+
   private async reload(): Promise<void> {
     this.progress = new Map((await this.store.getAllProgress()).map((r) => [r.id, r]));
     this.studentLabel = (await this.store.getMeta()).studentLabel;
@@ -56,7 +76,7 @@ export class CodexApp {
   }
 
   private openSubmit(): void {
-    if (!this.hub) return;
+    if (!this.hub || this.readonly) return;
     openSubmitModal({
       store: this.store,
       hub: this.hub,
@@ -64,8 +84,70 @@ export class CodexApp {
       total: this.total,
       getLabel: () => this.studentLabel,
       getRecords: () => [...this.progress.values()],
+      collect: () => this.collect(),
       onDone: () => void this.reload().then(() => this.render()),
     });
+  }
+
+  // ───────────────────────── Cloud-School collect / restore ─────────────────────────
+
+  /**
+   * 학생의 현재 저장 상태(사진 포함)를 한 덩어리로. [전송]과 교사 화면 수집이 같은 함수를 쓴다.
+   * 재생 중에는 그려 놓은 payload를 그대로 돌려준다 — 다시 수집해도 같은 결과(멱등).
+   */
+  async collect(): Promise<CloudSchoolCollected> {
+    if (this.restoreView) return this.restoreView.payload;
+    return collectSnapshot({
+      toolId: this.config.toolId,
+      title: this.config.title,
+      studentLabel: this.studentLabel,
+      records: [...this.progress.values()],
+      total: this.total,
+      now: toIsoWithOffset(),
+    });
+  }
+
+  /**
+   * 교사 화면이 고른 학생의 제출물을 이 도감 화면에 읽기 전용으로 그린다. IndexedDB에는 쓰지 않는다.
+   * 검증에 실패하면 한국어 사유로 거부한다(postMessage 경로는 src/main.ts가 warn만 남기고 삼킨다).
+   */
+  async restore(raw: unknown, opts: { studentName?: string } = {}): Promise<{ studentLabel: string; unlocked: number; total: number }> {
+    const result = validateCollected(raw, { appId: this.config.toolId, knownIds: this.knownIds });
+    if (!result.ok) {
+      console.warn(`[보물도감] 제출물을 그릴 수 없습니다 — ${result.reason}`);
+      throw new Error(result.reason);
+    }
+    return this.restoreValidated(result.value, opts);
+  }
+
+  async restoreValidated(payload: CloudSchoolCollected, opts: { studentName?: string } = {}): Promise<{ studentLabel: string; unlocked: number; total: number }> {
+    closeModal();
+    const view: RestoreView = { payload };
+    if (opts.studentName) view.studentName = opts.studentName;
+    this.restoreView = view;
+    this.restoreHint = false;
+    this.progress = new Map(collectedToRecords(payload).map((r) => [r.id, r]));
+    this.studentLabel = payload.studentLabel;
+    this.expanded = new Set(this.config.eras.map((e) => e.id));
+    this.activeFilter = "all";
+    this.render();
+    return { studentLabel: payload.studentLabel, unlocked: this.progress.size, total: this.total };
+  }
+
+  /** 읽기 전용 재생을 끝내고 이 기기의 실제 저장 상태로 돌아간다. */
+  async clearRestore(): Promise<void> {
+    if (!this.restoreView) return;
+    closeModal();
+    this.restoreView = null;
+    await this.reload();
+    this.render();
+  }
+
+  /** `#restore`로 열렸는데 제출물이 오지 않을 때의 안내(비차단). 재생이 시작되면 사라진다. */
+  setRestoreHint(on: boolean): void {
+    if (this.restoreView) return;
+    this.restoreHint = on;
+    this.render();
   }
 
   // ───────────────────────── render ─────────────────────────
@@ -74,8 +156,31 @@ export class CodexApp {
     for (const url of this.objectUrls) URL.revokeObjectURL(url);
     this.objectUrls = [];
     clear(this.root);
+    // 읽기 전용 재생: CSS·e2e·교사 화면이 이 속성 하나로 상태를 읽는다
+    if (this.readonly) this.root.dataset["readonly"] = "true";
+    else delete this.root.dataset["readonly"];
     append(this.root, this.renderHeader(), this.renderMain());
     this.justUnlocked = null;
+  }
+
+  /** 헤더 바로 아래 고정 배너: 누구의 제출물을 보고 있는지, 언제 제출됐는지. */
+  private renderRestoreBanner(view: RestoreView): HTMLElement {
+    const label = view.payload.studentLabel;
+    const who = view.studentName ?? (label ? (/^\d+$/.test(label) ? `${label}번` : label) : "이름 없는");
+    // 교사 UI가 iframe 안에서 학생 전환을 맡으므로 내장됐을 때는 [돌아가기]를 숨긴다
+    const embedded = window.parent !== window;
+    return h(
+      "div",
+      { class: "restore-banner no-print", id: "restoreBanner", role: "status", "aria-live": "polite" },
+      h(
+        "div",
+        { class: "restore-banner-inner" },
+        h("p", { class: "restore-banner-text" }, icon("eye", "text-amber-300"), h("span", {}, `${who} 학생의 제출물 보기 (읽기 전용) · 제출 ${formatLocal(view.payload.submittedAt)}`)),
+        embedded
+          ? null
+          : h("button", { type: "button", class: "btn btn-secondary btn-sm", id: "btn-clear-restore", onclick: () => void this.clearRestore() }, icon("arrow-left"), h("span", {}, "내 도감으로 돌아가기")),
+      ),
+    );
   }
 
   private renderHeader(): HTMLElement {
@@ -87,6 +192,7 @@ export class CodexApp {
       maxlength: String(LIMITS.studentLabelMax),
       value: this.studentLabel,
       "aria-label": "학생 번호 또는 이름",
+      readonly: this.readonly,
       onchange: () => void this.saveLabel(labelInput.value),
     }) as HTMLInputElement;
 
@@ -118,7 +224,8 @@ export class CodexApp {
         h(
           "div",
           { class: "flex items-center gap-2 sm:gap-3" },
-          backBtn,
+          // 재생 중(교사 iframe)에 [이전으로]는 iframe 자체를 다른 곳으로 보내 버린다 — 전환은 교사 UI가 맡는다
+          this.readonly ? null : backBtn,
           // 파일이 아니라 인라인 SVG: index.html만 살아남는 배포에서도 로고가 깨지지 않는다 (src/ui/logo.ts)
           renderLogo(40),
           h("div", {}, h("h1", { class: "app-title" }, this.config.title), h("p", { class: "app-subtitle" }, "5학년 사회 · 시대별 대표 보물 20종")),
@@ -127,22 +234,33 @@ export class CodexApp {
           "div",
           { class: "flex items-center gap-2 flex-wrap no-print" },
           h("label", { class: "label-wrap" }, icon("id-badge", "text-amber-400"), labelInput),
-          h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => window.print(), title: "도감 출력" }, icon("print"), h("span", { class: "hidden sm:inline" }, "도감 출력")),
-          // 허브에서 열렸으면 [전송], 아니면(GitHub Pages·로컬) 같은 자리의 버튼이 [내보내기]가 된다.
-          this.hub
-            ? h(
-                "button",
-                { type: "button", class: "btn btn-primary btn-sm", onclick: () => this.openSubmit(), title: "선생님께 전송", id: "btn-submit", "data-pending": String(this.pendingCount) },
-                icon("paper-plane"),
-                h("span", {}, "전송"),
-                this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `아직 전송되지 않은 기록 ${this.pendingCount}건`) : null,
-              )
-            : h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
-          h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => this.importJson(), title: "가져오기", id: "btn-import" }, icon("upload"), h("span", { class: "hidden sm:inline" }, "가져오기")),
-          h("button", { type: "button", class: "btn btn-danger-ghost btn-sm", onclick: () => void this.reset(), title: "초기화", "aria-label": "초기화", id: "btn-reset" }, icon("rotate-right")),
+          h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => window.print(), title: "도감 출력", id: "btn-print" }, icon("print"), h("span", { class: "hidden sm:inline" }, "도감 출력")),
+          // 읽기 전용 재생 중에는 저장 상태를 바꾸는 버튼(전송·내보내기·가져오기·초기화)을 그리지 않는다. 출력은 남는다.
+          ...(this.readonly ? [] : this.renderMutatingButtons()),
         ),
       ),
+      this.restoreView ? this.renderRestoreBanner(this.restoreView) : null,
+      this.restoreHint
+        ? h("div", { class: "restore-hint no-print", id: "restoreHint", role: "status" }, icon("info", "text-amber-300"), h("span", {}, "선생님 화면에서 학생을 선택하세요"))
+        : null,
     );
+  }
+
+  private renderMutatingButtons(): HTMLElement[] {
+    return [
+      // 허브에서 열렸으면 [전송], 아니면(GitHub Pages·로컬) 같은 자리의 버튼이 [내보내기]가 된다.
+      this.hub
+        ? h(
+            "button",
+            { type: "button", class: "btn btn-primary btn-sm", onclick: () => this.openSubmit(), title: "선생님께 전송", id: "btn-submit", "data-pending": String(this.pendingCount) },
+            icon("paper-plane"),
+            h("span", {}, "전송"),
+            this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `아직 전송되지 않은 기록 ${this.pendingCount}건`) : null,
+          )
+        : h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
+      h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => this.importJson(), title: "가져오기", id: "btn-import" }, icon("upload"), h("span", { class: "hidden sm:inline" }, "가져오기")),
+      h("button", { type: "button", class: "btn btn-danger-ghost btn-sm", onclick: () => void this.reset(), title: "초기화", "aria-label": "초기화", id: "btn-reset" }, icon("rotate-right")),
+    ];
   }
 
   private renderMain(): HTMLElement {
@@ -167,7 +285,9 @@ export class CodexApp {
       h(
         "div",
         { class: "summary-foot no-print" },
-        h("p", { class: "tip" }, icon("bulb", "text-amber-600"), h("span", {}, "수업에서 배운 핵심어를 입력하거나, 선생님이 나눠 준 유물 사진을 올려 보물을 해금하세요.")),
+        this.readonly
+          ? h("p", { class: "tip" }, icon("eye", "text-amber-600"), h("span", {}, "학생이 제출한 도감을 그대로 보고 있습니다. 카드의 [자세히 보기]로 소감과 사진을 확인하고, [도감 출력]으로 인쇄할 수 있어요."))
+          : h("p", { class: "tip" }, icon("bulb", "text-amber-600"), h("span", {}, "수업에서 배운 핵심어를 입력하거나, 선생님이 나눠 준 유물 사진을 올려 보물을 해금하세요.")),
         h(
           "div",
           { class: "flex gap-2" },
@@ -202,7 +322,7 @@ export class CodexApp {
         this.objectUrls.push(url);
       }
       grid.appendChild(
-        renderCard(t, rec, url, { onKeyword: (x) => this.openKeyword(x), onPhoto: (x) => this.openPhoto(x), onDetail: (x) => this.openDetail(x) }, this.justUnlocked === t.id),
+        renderCard(t, rec, url, { onKeyword: (x) => this.openKeyword(x), onPhoto: (x) => this.openPhoto(x), onDetail: (x) => this.openDetail(x), readonly: this.readonly }, this.justUnlocked === t.id),
       );
     }
     return h(
@@ -239,6 +359,7 @@ export class CodexApp {
   }
 
   private async saveLabel(value: string): Promise<void> {
+    if (this.readonly) return;
     this.studentLabel = value.trim().slice(0, LIMITS.studentLabelMax);
     await this.store.setMeta({ studentLabel: this.studentLabel });
     this.render();
@@ -246,6 +367,8 @@ export class CodexApp {
   }
 
   private async unlock(t: Treasure, mode: "keyword" | "photo", note: string, image?: Blob): Promise<void> {
+    // 읽기 전용 재생 중 저장은 학생 기록을 교사 화면 데이터로 덮어쓰는 사고다 — 버튼을 숨겼어도 한 번 더 막는다
+    if (this.readonly) return;
     const record: UnlockRecord = { id: t.id, mode, unlockedAt: toIsoWithOffset(), note: note.trim().slice(0, LIMITS.noteMax) };
     if (image) record.image = image;
     await this.store.putProgress(record);
@@ -259,6 +382,7 @@ export class CodexApp {
   // ───────────────────────── modals ─────────────────────────
 
   private openKeyword(t: Treasure): void {
+    if (this.readonly) return;
     const input = h("input", { type: "text", id: "keywordInput", class: "input", placeholder: "수업에서 배운 핵심어", autocomplete: "off", "aria-label": "핵심어" }) as HTMLInputElement;
     const note = h("textarea", { id: "noteInput", class: "input", rows: "2", maxlength: String(LIMITS.noteMax), placeholder: "예: 백성을 지키려는 선조들의 마음이 느껴졌다." }) as HTMLTextAreaElement;
     const error = h("p", { class: "field-error", id: "keywordError", role: "alert" });
@@ -290,6 +414,7 @@ export class CodexApp {
   }
 
   private openPhoto(t: Treasure): void {
+    if (this.readonly) return;
     const existing = this.progress.get(t.id);
     let selected: Blob | null = null;
     const preview = h("img", { class: "preview hidden", alt: "선택한 사진 미리보기", id: "photoPreview" }) as HTMLImageElement;
@@ -342,11 +467,11 @@ export class CodexApp {
       body: h("div", { class: "space-y-3" },
         h("div", { class: "detail-media" }, media),
         h("div", { class: "info-box" }, h("div", { class: "info-title" }, icon("scroll", "text-amber-600"), h("span", {}, "유물 개요 및 역사적 가치")), h("p", {}, t.description)),
-        h("div", { class: "info-box info-box-amber" }, h("div", { class: "info-title" }, icon("pencil", "text-amber-700"), h("span", {}, "내가 적은 큐레이터 한 줄")), h("p", { class: "italic", "data-role": "detail-note" }, rec.note || "큐레이터 메모 없음")),
+        h("div", { class: "info-box info-box-amber" }, h("div", { class: "info-title" }, icon("pencil", "text-amber-700"), h("span", {}, this.readonly ? "학생이 적은 큐레이터 한 줄" : "내가 적은 큐레이터 한 줄")), h("p", { class: "italic", "data-role": "detail-note" }, rec.note || "큐레이터 메모 없음")),
         h("p", { class: "text-xs text-slate-500" }, `${rec.mode === "keyword" ? "핵심어" : "사진"}으로 해금 · ${formatLocal(rec.unlockedAt)}`),
       ),
-      footer: h("div", { class: "flex justify-between items-center gap-2" },
-        button(rec.image ? "사진 변경하기" : "사진 추가하기", { variant: "ghost", icon: "camera", onclick: () => this.openPhoto(t) }),
+      footer: h("div", { class: `flex ${this.readonly ? "justify-end" : "justify-between"} items-center gap-2` },
+        this.readonly ? null : button(rec.image ? "사진 변경하기" : "사진 추가하기", { variant: "ghost", icon: "camera", onclick: () => this.openPhoto(t) }),
         button("닫기", { variant: "primary", onclick: closeModal })),
       onClose: () => { if (url) URL.revokeObjectURL(url); },
     });
@@ -355,6 +480,7 @@ export class CodexApp {
   // ───────────────────────── export / import / reset ─────────────────────────
 
   private async exportJson(): Promise<void> {
+    if (this.readonly) return;
     const file = await exportProgress(this.config.toolId, { studentLabel: this.studentLabel }, [...this.progress.values()], toIsoWithOffset());
     const blob = new Blob([JSON.stringify(file, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -367,6 +493,7 @@ export class CodexApp {
   }
 
   private importJson(): void {
+    if (this.readonly) return;
     const input = h("input", { type: "file", accept: "application/json,.json", class: "sr-only", id: "importInput" }) as HTMLInputElement;
     input.addEventListener("change", async () => {
       const file = input.files?.[0];
@@ -394,6 +521,7 @@ export class CodexApp {
   }
 
   private async reset(): Promise<void> {
+    if (this.readonly) return;
     const ok = await confirmModal({ title: "보물도감 초기화", message: "모든 유물 사진과 기록이 삭제됩니다. 정말로 초기화할까요?", confirmLabel: "초기화 진행" });
     if (!ok) return;
     await this.store.wipe();

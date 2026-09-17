@@ -1,0 +1,37 @@
+$ CODEX_KEYWORDS=example pnpm build
+
+> treasure-codex@0.1.0 prebuild D:\works\Treasure-Collection\.claude\worktrees\agent-a91d7e6eeaa735bca
+> tsx scripts/build-config.ts
+
+config.json 생성: 유물 20종, 핵심어 출처 src/data/keywords.example.json (예시)
+
+> treasure-codex@0.1.0 build D:\works\Treasure-Collection\.claude\worktrees\agent-a91d7e6eeaa735bca
+> vite build
+
+[36mvite v8.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 27 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                               1.08 kB │ gzip:  0.69 kB
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-DqsuP2RP.css                               71.99 kB │ gzip: 11.47 kB
+dist/assets/index-BPfFjvKE.js                                49.26 kB │ gzip: 19.51 kB
+
+[32m✓ built in 598ms[39m
+exitCode=0
+
+$ pnpm pack:bundle
+
+> treasure-codex@0.1.0 pack:bundle D:\works\Treasure-Collection\.claude\worktrees\agent-a91d7e6eeaa735bca
+> tsx scripts/pack-bundle.ts
+
+번들 확정: 파일 16개, 579 KB, sha256:44cb2c48d5c9b991e6ff835343068f6f265fb0a022b4e4d719a4f2bec3b9b00b
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+exitCode=0
+
+$ grep -c 'data:\|svg+xml\|javascript:\|vbscript:' dist/index.html dist/assets/*.css  (마켓 감사 문자열, 0이어야 한다)
+dist/index.html:0
+dist/assets/index-DqsuP2RP.css:0
+$ grep -c 'javascript:\|vbscript:' dist/assets/*.js
+0

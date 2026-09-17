@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "card": "cloudschool-collect-restore",
+  "productionBuild": {
+    "command": "CODEX_KEYWORDS=example pnpm build",
+    "exitCode": 0,
+    "artifact": "dist/index.html",
+    "log": "evidence/20260918-cloudschool-collect-restore/build-log.txt"
+  },
+  "runtime": {
+    "kind": "web",
+    "status": "observed",
+    "url": "http://127.0.0.1:4185/",
+    "readyMethod": "PREVIEW_PORT=4185 pnpm preview → curl http://127.0.0.1:4185/ (200, 1085 bytes) 및 /assets/index-DqsuP2RP.css (200), 로그 preview-observe.txt + Playwright e2e 18건(교사 iframe 재생 시뮬레이션 포함)",
+    "readyStatus": 200,
+    "process": {
+      "pid": 30352,
+      "cleanedUp": true
+    },
+    "screenshot": "evidence/20260918-cloudschool-collect-restore/restore-1366x768.png"
+  },
+  "contract": "plans/treasure-codex-launcher.plan.md"
+}

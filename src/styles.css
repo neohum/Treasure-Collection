@@ -25,6 +25,14 @@ html {
 .app-main { @apply max-w-6xl mx-auto px-4 mt-6 pb-16 space-y-6; }
 .panel { @apply bg-white rounded-2xl p-5 shadow-sm border border-slate-200; }
 
+/* ── 읽기 전용 재생 배너 (교사 화면이 학생 제출물을 볼 때, 헤더 안에 붙어 함께 고정된다) ── */
+.restore-banner { @apply bg-amber-500 text-slate-950 border-t border-amber-300; }
+.restore-banner-inner { @apply max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2; }
+.restore-banner-text { @apply flex items-center gap-2 text-sm font-bold; }
+.restore-hint { @apply max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 text-xs text-slate-300 border-t border-slate-800; }
+.card-readonly-note { @apply text-[11px] text-slate-400 font-bold mt-auto; }
+[data-readonly="true"] .label-input { @apply cursor-default text-amber-300; }
+
 /* ── 헤더 입력 ────────────────────────────────────────────── */
 .label-wrap { @apply flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700; }
 .label-input { @apply bg-transparent text-white text-sm focus:outline-none w-28 font-semibold placeholder:text-slate-500; }

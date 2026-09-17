@@ -5,6 +5,8 @@ export interface CardActions {
   onKeyword: (t: Treasure) => void;
   onPhoto: (t: Treasure) => void;
   onDetail: (t: Treasure) => void;
+  /** 교사 화면의 읽기 전용 재생: 해금 버튼을 그리지 않는다 ([자세히 보기]는 남는다) */
+  readonly?: boolean;
 }
 
 /** 해금된 카드의 사진 URL은 호출자가 만들고(objectURL) 회수한다. */
@@ -17,12 +19,14 @@ export function renderCard(t: Treasure, record: UnlockRecord | undefined, imageU
       h("span", { class: "badge badge-muted" }, `${t.era} 미션`),
       h("h4", { class: "card-title" }, t.name),
       h("p", { class: "card-hint" }, t.hint),
-      h(
-        "div",
-        { class: "card-actions no-print" },
-        h("button", { type: "button", class: "btn btn-primary btn-sm", onclick: () => actions.onKeyword(t), "data-action": "keyword" }, icon("key"), h("span", {}, "핵심어 입력")),
-        h("button", { type: "button", class: "btn btn-secondary btn-sm", onclick: () => actions.onPhoto(t), "data-action": "photo" }, icon("camera"), h("span", {}, "사진 등록")),
-      ),
+      actions.readonly
+        ? h("p", { class: "card-readonly-note" }, "아직 해금하지 않은 보물")
+        : h(
+            "div",
+            { class: "card-actions no-print" },
+            h("button", { type: "button", class: "btn btn-primary btn-sm", onclick: () => actions.onKeyword(t), "data-action": "keyword" }, icon("key"), h("span", {}, "핵심어 입력")),
+            h("button", { type: "button", class: "btn btn-secondary btn-sm", onclick: () => actions.onPhoto(t), "data-action": "photo" }, icon("camera"), h("span", {}, "사진 등록")),
+          ),
     );
   }
 
