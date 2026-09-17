@@ -1,0 +1,71 @@
+$ pnpm typecheck
+ok
+$ pnpm lint
+  5:17  error  `import()` type annotations are forbidden  @typescript-eslint/consistent-type-imports
+✖ 1 problem (1 error, 0 warnings)
+$ pnpm test
+ Test Files  13 passed (13)
+      Tests  46 passed (46)
+$ pnpm build (public/config.json 없이 → 플러그인이 emit)
+[33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./scripts/build-config" without a file extension (vite.config.ts:60:44). Add the file extension
+  - import "../src/data/treasures" without a file extension (scripts/build-config.ts:9:22). Add the file extension
+  - import "../src/core/unlock" without a file extension (scripts/build-config.ts:10:36). Add the file extension
+  - import "../src/core/types" without a file extension (scripts/build-config.ts:11:34). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+dist/config.json                                             10.19 kB │ gzip:  5.03 kB
+dist/assets/uicons-regular-rounded-J3WOUERV-0sU45oCT.woff2  385.63 kB
+dist/assets/index-BIqitrfE.css                               70.45 kB │ gzip: 11.28 kB
+dist/assets/index-DQ2kC69Q.js                                40.20 kB │ gzip: 16.78 kB
+[32m✓ built in 1.00s[39m
+dist/config.json
+1
+$ pnpm build (정상 경로, prebuild 포함)
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+[32m✓ built in 230ms[39m
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+$ pnpm e2e
+  ok  3 [chromebook] › tests\e2e\codex.spec.ts:22:3 › 보물도감 화면 › 핵심어 입력으로 해금되고 오답은 거부된다 (AC-1) (1.2s)
+  ok  1 [chromebook] › tests\e2e\smoke.spec.ts:4:3 › config.json 로드 견고성 (cloud-school 뷰어 404 회귀) › index.html이 번들과 다른 경로에서 열려도 스크립트 위치 기준으로 config.json을 찾는다 (1.1s)
+  ok  2 [chromebook] › tests\e2e\submit.spec.ts:31:3 › 전송 버튼 › 허브 경로에서 [전송]이 계약 본문을 POST하고 영수증을 보여 준다 (AC-1, AC-4) (1.5s)
+  ok  5 [chromebook] › tests\e2e\smoke.spec.ts:16:3 › config.json 로드 견고성 (cloud-school 뷰어 404 회귀) › config.json이 어디에도 없어도 내장 설정으로 도감이 뜬다 (320ms)
+  ok  4 [chromebook] › tests\e2e\codex.spec.ts:43:3 › 보물도감 화면 › 사진 등록으로 해금되고 새로고침 후에도 유지된다 (AC-2) (787ms)
+  ok  7 [chromebook] › tests\e2e\smoke.spec.ts:32:1 › production 빌드가 열리고 아이콘 폰트가 로드된다 (390ms)
+  ok  8 [chromebook] › tests\e2e\codex.spec.ts:65:3 › 보물도감 화면 › 아이콘은 전부 fi fi-rr이며 FontAwesome·이모지·인라인 SVG 아이콘이 없다 (AC-3) (445ms)
+  ok  6 [chromebook] › tests\e2e\submit.spec.ts:69:3 › 전송 버튼 › 허브가 응답하지 못하면 큐에 남고 다음 [전송]에서 재시도된다 (AC-2) (1.1s)
+  ok  9 [chromebook] › tests\e2e\codex.spec.ts:85:3 › 보물도감 화면 › 학생 소감은 HTML로 해석되지 않는다 (AC-4) (718ms)
+  ok 10 [chromebook] › tests\e2e\submit.spec.ts:107:3 › 전송 버튼 › 허브 경로가 아니면 같은 자리의 버튼이 [내보내기]가 되고 JSON을 내려받는다 (AC-3) (718ms)
+  ok 11 [chromebook] › tests\e2e\codex.spec.ts:99:3 › 보물도감 화면 › 크롬북·데스크톱·모바일 뷰포트 스크린샷과 인쇄 레이아웃 (AC-5, AC-6) (580ms)
+  ok 12 [chromebook] › tests\e2e\submit.spec.ts:125:3 › 전송 버튼 › 번호가 비어 있으면 전송 버튼이 막히고 안내가 뜬다 (AC-5) (574ms)
+  ok 13 [chromebook] › tests\e2e\codex.spec.ts:125:3 › 보물도감 화면 › 초기화하면 모든 기록이 사라진다 (775ms)
+  13 passed (8.3s)
+$ 재검사: pnpm typecheck && pnpm lint && pnpm test && pnpm build
+typecheck ok
+  5:17  error  `import()` type annotations are forbidden  @typescript-eslint/consistent-type-imports
+✖ 1 problem (1 error, 0 warnings)
+ Test Files  13 passed (13)
+      Tests  46 passed (46)
+  - import "./scripts/build-config" without a file extension (vite.config.ts:60:44). Add the file extension
+  - import "./normalize" without a file extension (src/core/unlock.ts:1:34). Add the file extension
+  - import "../core/types" without a file extension (src/data/treasures.ts:1:34). Add the file extension
+  - import "./sha256" without a file extension (src/core/unlock.ts:2:27). Add the file extension
+  - import "./types" without a file extension (src/core/unlock.ts:3:34). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+[32m✓ built in 287ms[39m
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+$ 최종: typecheck / lint / test / vite build 직접(prebuild 없이) / pnpm build / pack / e2e / health
+typecheck ok
+lint ok
+ Test Files  13 passed (13)
+      Tests  46 passed (46)
+[32m✓ built in 303ms[39m
+dist/config.json
+public/config.json
+[32m✓ built in 361ms[39m
+dist/manifest.json 작성 — 런처 [번들 가져오기]로 dist/ 폴더를 선택하면 됩니다.
+  13 passed (7.7s)
+brand assets: blocked
+[31m✗ brand-assets failed[0m
+brand assets: blocked
+[31m✗ brand-assets failed[0m
+[32m✓ health: all gates passed (multi-layer verification complete)[0m
