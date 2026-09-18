@@ -65,28 +65,35 @@ export function openSubmitModal(deps: SubmitDeps): void {
     let delivered = false;
     let receiptId = `sub_${Date.now()}`;
 
-    // 1. iframe 부모 윈도우(do.io.kr 인앱 뷰어 모달)로 postMessage 전송
-    if (typeof window !== "undefined" && window.parent && window.parent !== window) {
-      try {
-        window.parent.postMessage(
-          {
-            type: "edulinker_submission",
-            source: "treasure-codex",
-            payload: {
-              appId: deps.toolId,
-              appTitle: "5학년 역사 디지털 보물도감",
-              studentKey: label,
-              deviceLabel: label ? `${label}번` : "학생 기기",
-              comment: records.map((r) => r.note).filter(Boolean).join(" / "),
-              data: submission,
-              attachments,
-            },
-          },
-          "*"
-        );
-        delivered = true;
-      } catch (e) {
-        console.warn("[TreasureCodex] postMessage failed:", e);
+    // 1. iframe 부모 윈도우(do.io.kr 인앱 뷰어 모달) 및 opener로 postMessage 전송
+    if (typeof window !== "undefined") {
+      const msg = {
+        type: "edulinker_submission",
+        event: "assignment_submitted",
+        source: "treasure-codex",
+        payload: {
+          appId: deps.toolId,
+          appTitle: "5학년 역사 디지털 보물도감",
+          studentKey: label,
+          deviceLabel: label ? `${label}번` : "학생 기기",
+          comment: records.map((r) => r.note).filter(Boolean).join(" / "),
+          data: submission,
+          attachments,
+        },
+      };
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage(msg, "*");
+          delivered = true;
+        } catch (e) {
+          console.warn("[TreasureCodex] postMessage failed:", e);
+        }
+      }
+      if (window.opener && window.opener !== window) {
+        try {
+          window.opener.postMessage(msg, "*");
+          delivered = true;
+        } catch (e) {}
       }
     }
 
@@ -133,7 +140,22 @@ export function openSubmitModal(deps: SubmitDeps): void {
         h("p", { class: "text-slate-500" }, `접수 시각 ${formatLocal(nowIso)}${attachments.length > 0 ? ` · 발굴 사진 ${attachments.length}장 첨부됨` : ""}`),
       );
       summary.replaceWith(receipt);
-      sendBtn.replaceWith(button("닫기", { variant: "primary", onclick: closeModal }));
+      const returnBtn = button("과제 자료 화면으로 이동", {
+        variant: "primary",
+        onclick: () => {
+          closeModal();
+          if (typeof window !== "undefined") {
+            if (window.parent && window.parent !== window) {
+              window.parent.postMessage({ type: "close_viewer", event: "assignment_submitted" }, "*");
+            } else if (window.opener) {
+              try { window.close(); } catch {}
+            } else {
+              window.location.href = "/student/dashboard/materials";
+            }
+          }
+        },
+      });
+      sendBtn.replaceWith(returnBtn);
       showToast("과제 전송 완료! 선생님 화면에서 실시간으로 확인할 수 있어요.");
       deps.onDone();
       return;
