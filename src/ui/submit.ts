@@ -67,11 +67,14 @@ export function openSubmitModal(deps: SubmitDeps): void {
 
     // 1. iframe 부모 윈도우(do.io.kr 인앱 뷰어 모달) 및 opener로 postMessage 전송
     if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlMaterialId = urlParams.get("material_id") || urlParams.get("materialId") || undefined;
       const msg = {
         type: "edulinker_submission",
         event: "assignment_submitted",
         source: "treasure-codex",
         payload: {
+          materialId: urlMaterialId,
           appId: deps.toolId,
           appTitle: "5학년 역사 디지털 보물도감",
           studentKey: label,
