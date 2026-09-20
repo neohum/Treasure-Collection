@@ -16,7 +16,8 @@
     "failoverOrder": [
       "agy",
       "codex",
-      "claude"
+      "claude",
+      "gemini"
     ],
     "modelFallbackEnv": "<PROVIDER>_FALLBACK_MODELS"
   },
