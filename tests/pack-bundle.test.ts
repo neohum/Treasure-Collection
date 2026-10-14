@@ -71,4 +71,14 @@ describe("pack-bundle (AC-1, AC-3)", () => {
     const dir = makeDist({ "assets/app.js": "1" });
     expect(() => packBundle(dir, meta)).toThrow(/pnpm build/);
   });
+
+  it("docs/bundle-contract.md 계약 문서가 올바르게 존재하고 필수 절을 포함한다", () => {
+    const docPath = join(import.meta.dirname, "..", "docs", "bundle-contract.md");
+    const content = readFileSync(docPath, "utf8");
+    expect(content).toContain("ToolDistributionManifest");
+    expect(content).toContain("integrityHash");
+    expect(content).toContain("POST {hubOrigin}/api/tools/treasure-codex/submissions");
+    expect(content).toContain(".html .js .css .json .png .jpg .jpeg .svg .ico .woff .woff2 .wasm");
+  });
 });
+

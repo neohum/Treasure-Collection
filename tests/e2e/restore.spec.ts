@@ -173,7 +173,8 @@ test.describe("Cloud-School 과제 수집 프로토콜 (collect / restore)", () 
     expect(live.items).toEqual([]);
     expect(live.attachments).toEqual([]);
     expect(live.studentLabel).toBe("");
-    await teacher.reload();
+    await teacher.locator("iframe#app").evaluate((el: HTMLIFrameElement) => el.contentWindow?.location.reload());
+    await teacher.waitForFunction(() => (window as any).__msgs?.filter((m: any) => m?.type === "cloudschool_app_ready").length >= 2);
     await expect(teacher.frameLocator("iframe#app").locator("#progressText")).toHaveText("0 / 20 (0%)");
 
     // 모르는 타입·깨진 payload는 무시된다 (응답 없음, 페이지 오류 없음)

@@ -1,6 +1,6 @@
 ---
 plan: treasure-codex-launcher
-status: approved
+status: done
 risk: medium
 owner: neohum
 ---

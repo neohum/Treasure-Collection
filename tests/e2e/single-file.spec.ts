@@ -57,6 +57,18 @@ function singleFileHtml(): string {
 }
 
 test.describe("단일 HTML 배포 내성 (cloud-school 404 회귀)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("./");
+    await page.evaluate(async () => {
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) await reg.unregister();
+        const keys = await caches.keys();
+        for (const key of keys) await caches.delete(key);
+      }
+    });
+  });
+
   test("AC-1: 로컬 woff2가 전부 404여도 CDN 폴백으로 아이콘 폰트가 로드된다 (CDN 요청 정확히 1회)", async ({ page }) => {
     const cdn = { hits: 0 };
     const local404: string[] = [];
