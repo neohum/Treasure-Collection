@@ -27,5 +27,5 @@
     "vite.config.ts",
     "playwright.config.ts"
   ],
-  "exclude": ["legacy", "dist", "node_modules", "scripts/loop", "scripts/dev", "src/sw.ts"]
+  "exclude": ["legacy", "dist", "node_modules", "scripts/loop", "scripts/dev", "src/sw.ts", "src/components"]
 }

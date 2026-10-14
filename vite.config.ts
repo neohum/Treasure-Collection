@@ -133,11 +133,57 @@ function trimIconFontCss(): Plugin {
   };
 }
 
+function serviceWorkerPlugin(): Plugin {
+  return {
+    name: "treasure-codex:sw",
+    apply: "build",
+    async closeBundle() {
+      const distDir = resolve(import.meta.dirname, "dist");
+      const walk = (dir: string, base = ""): string[] => {
+        const res: string[] = [];
+        for (const entry of readdirSync(dir)) {
+          const full = join(dir, entry);
+          const rel = base ? `${base}/${entry}` : entry;
+          if (statSync(full).isDirectory()) {
+            res.push(...walk(full, rel));
+          } else if (!rel.endsWith("sw.js") && !rel.endsWith("manifest.json")) {
+            res.push(`./${rel}`);
+          }
+        }
+        return res;
+      };
+      const precacheList = ["./", ...walk(distDir)];
+
+      const { build } = await import("vite");
+      await build({
+        configFile: false,
+        define: {
+          __PRECACHE_ASSETS__: JSON.stringify(precacheList),
+        },
+        build: {
+          emptyOutDir: false,
+          outDir: "dist",
+          lib: {
+            entry: resolve(import.meta.dirname, "src/sw.ts"),
+            formats: ["es"],
+            fileName: () => "sw.js",
+          },
+          rollupOptions: {
+            output: {
+              codeSplitting: false,
+            },
+          },
+        },
+      });
+    },
+  };
+}
+
 export default defineConfig({
   // 허브는 `/dist/{toolID}/`, GitHub Pages는 `/Treasure-Collection/` 아래에서 서빙한다.
   // 상대 경로여야 두 곳 모두에서 에셋이 열린다.
   base: "./",
-  plugins: [codexConfigPlugin(), trimIconFontCss(), tailwindcss()],
+  plugins: [codexConfigPlugin(), trimIconFontCss(), tailwindcss(), serviceWorkerPlugin()],
   build: {
     outDir: "dist",
     emptyOutDir: true,

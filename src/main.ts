@@ -94,6 +94,21 @@ async function loadConfig(): Promise<{ config: CodexConfig; source: string }> {
   return { config: embeddedConfig, source: "embedded" };
 }
 
+function registerServiceWorker(): void {
+  if (typeof window !== "undefined" && "serviceWorker" in navigator && window.parent === window) {
+    const register = () => {
+      navigator.serviceWorker.register("./sw.js").catch((err) => {
+        console.warn("[보물도감] 서비스 워커 등록 실패:", err);
+      });
+    };
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      register();
+    } else {
+      window.addEventListener("DOMContentLoaded", register, { once: true });
+    }
+  }
+}
+
 async function boot(): Promise<void> {
   const root = document.getElementById("app");
   if (!root) throw new Error("app root not found");
@@ -103,6 +118,7 @@ async function boot(): Promise<void> {
     root.dataset["configSource"] = source === "embedded" ? "embedded" : "file";
     const app = await CodexApp.mount(root, config);
     installCloudSchoolBridge(app, config);
+    registerServiceWorker();
   } catch (err) {
     root.replaceChildren(
       h("div", { class: "boot-error", role: "alert" }, icon("exclamation", "text-red-500 text-2xl"), h("p", {}, "도감을 불러오지 못했습니다."), h("p", { class: "text-xs text-slate-500" }, err instanceof Error ? err.message : String(err))),
@@ -111,3 +127,4 @@ async function boot(): Promise<void> {
 }
 
 void boot();
+

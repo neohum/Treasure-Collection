@@ -1,6 +1,6 @@
 ---
 plan: google-classroom-pwa
-status: approved
+status: done
 risk: low
 owner: antigravity
 ---

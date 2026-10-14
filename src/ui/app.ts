@@ -6,6 +6,7 @@ import { exportProgress, importProgress, ImportError } from "../core/export";
 import { LIMITS, type CodexConfig, type EraCategory, type Treasure, type UnlockRecord } from "../core/types";
 import { detectHub, type HubContext } from "../core/hub";
 import { collectSnapshot, collectedToRecords, validateCollected, type CloudSchoolCollected } from "../core/bridge";
+import { filterTreasures, type UnlockFilterStatus } from "../core/filter";
 import { renderCard } from "./card";
 import { append, clear, h, icon } from "./dom";
 import { renderLogo } from "./logo";
@@ -27,6 +28,8 @@ export class CodexApp {
   private progress = new Map<string, UnlockRecord>();
   private studentLabel = "";
   private activeFilter = "all";
+  private unlockFilter: UnlockFilterStatus = "all";
+  private searchQuery = "";
   private expanded = new Set<string>();
   private objectUrls: string[] = [];
   private justUnlocked: string | null = null;
@@ -130,6 +133,8 @@ export class CodexApp {
     this.studentLabel = payload.studentLabel;
     this.expanded = new Set(this.config.eras.map((e) => e.id));
     this.activeFilter = "all";
+    this.unlockFilter = "all";
+    this.searchQuery = "";
     this.render();
     return { studentLabel: payload.studentLabel, unlocked: this.progress.size, total: this.total };
   }
@@ -139,6 +144,8 @@ export class CodexApp {
     if (!this.restoreView) return;
     closeModal();
     this.restoreView = null;
+    this.unlockFilter = "all";
+    this.searchQuery = "";
     await this.reload();
     this.render();
   }
@@ -247,47 +254,20 @@ export class CodexApp {
   }
 
   private renderMutatingButtons(): HTMLElement[] {
-    let lastSubmitTime = "";
-    try {
-      const raw = localStorage.getItem("treasure_codex_submitted");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed?.submittedAt) {
-          lastSubmitTime = new Date(parsed.submittedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
-        }
-      }
-    } catch {}
-
     return [
-      h(
-        "button",
-        {
-          type: "button",
-          class: `btn ${lastSubmitTime ? "btn-secondary" : "btn-primary"} btn-sm`,
-          onclick: () => this.openSubmit(),
-          title: "선생님께 전송",
-          id: "btn-submit",
-          "data-pending": String(this.pendingCount),
-        },
-        icon("paper-plane"),
-        h("span", {}, lastSubmitTime ? "다시 전송" : "선생님께 전송"),
-        this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `미전송 ${this.pendingCount}건`) : null,
-      ),
-      lastSubmitTime
+      // 허브에서 열렸으면 [전송], 아니면(GitHub Pages·로컬) 같은 자리의 버튼이 [내보내기]가 된다.
+      this.hub
         ? h(
-            "span",
-            {
-              class: "badge text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 py-1 px-2.5 rounded-full inline-flex items-center gap-1",
-              title: `선생님 런처로 과제가 전달되었습니다 (${lastSubmitTime})`,
-            },
-            icon("badge-check", "text-emerald-600"),
-            h("span", {}, `과제 제출 완료 (${lastSubmitTime})`),
+            "button",
+            { type: "button", class: "btn btn-primary btn-sm", onclick: () => this.openSubmit(), title: "선생님께 전송", id: "btn-submit", "data-pending": String(this.pendingCount) },
+            icon("paper-plane"),
+            h("span", {}, "전송"),
+            this.pendingCount > 0 ? h("span", { class: "badge badge-pending", id: "pendingBadge" }, `아직 전송되지 않은 기록 ${this.pendingCount}건`) : null,
           )
-        : null,
-      h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
+        : h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => void this.exportJson(), title: "내보내기", id: "btn-export" }, icon("download"), h("span", {}, "내보내기")),
       h("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => this.importJson(), title: "가져오기", id: "btn-import" }, icon("upload"), h("span", { class: "hidden sm:inline" }, "가져오기")),
       h("button", { type: "button", class: "btn btn-danger-ghost btn-sm", onclick: () => void this.reset(), title: "초기화", "aria-label": "초기화", id: "btn-reset" }, icon("rotate-right")),
-    ].filter(Boolean) as HTMLElement[];
+    ];
   }
 
   private renderMain(): HTMLElement {
@@ -324,24 +304,105 @@ export class CodexApp {
       ),
     );
 
+    const filterBar = h(
+      "div",
+      { class: "filter-bar flex flex-wrap items-center justify-between gap-3 no-print bg-white p-3 rounded-2xl border border-slate-200 shadow-sm" },
+      h(
+        "div",
+        { class: "flex items-center gap-1.5 flex-wrap" },
+        h("span", { class: "text-xs font-bold text-slate-500 mr-1" }, "해금 상태:"),
+        h(
+          "button",
+          {
+            type: "button",
+            class: `btn btn-xs ${this.unlockFilter === "all" ? "btn-dark" : "btn-secondary"}`,
+            id: "filter-status-all",
+            onclick: () => this.setUnlockFilter("all"),
+          },
+          icon("apps"),
+          h("span", {}, "전체"),
+        ),
+        h(
+          "button",
+          {
+            type: "button",
+            class: `btn btn-xs ${this.unlockFilter === "unlocked" ? "btn-dark" : "btn-secondary"}`,
+            id: "filter-status-unlocked",
+            onclick: () => this.setUnlockFilter("unlocked"),
+          },
+          icon("check"),
+          h("span", {}, "수집 완료"),
+        ),
+        h(
+          "button",
+          {
+            type: "button",
+            class: `btn btn-xs ${this.unlockFilter === "locked" ? "btn-dark" : "btn-secondary"}`,
+            id: "filter-status-locked",
+            onclick: () => this.setUnlockFilter("locked"),
+          },
+          icon("lock"),
+          h("span", {}, "미해금"),
+        ),
+      ),
+      h(
+        "div",
+        { class: "flex items-center gap-2 flex-1 sm:flex-initial min-w-[200px]" },
+        h(
+          "div",
+          { class: "relative w-full" },
+          h("input", {
+            type: "search",
+            id: "searchInput",
+            class: "w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs placeholder:text-slate-400 focus:outline-none focus:border-amber-500 focus:bg-white transition",
+            placeholder: "유물 또는 시대 검색...",
+            value: this.searchQuery,
+            oninput: (e: Event) => {
+              this.searchQuery = (e.target as HTMLInputElement).value;
+              this.render();
+            },
+          }),
+          h("span", { class: "absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs flex items-center pointer-events-none" }, icon("search")),
+        ),
+      ),
+    );
+
     const tabs = h("nav", { class: "tabs no-print", "aria-label": "시대 필터" });
     const mkTab = (id: string, label: string, iconName: string) =>
       h("button", { type: "button", class: `tab ${this.activeFilter === id ? "tab-active" : ""}`, onclick: () => this.filter(id), "data-filter": id }, icon(iconName), h("span", {}, label));
     append(tabs, mkTab("all", "전체 보기", "apps"), ...this.config.eras.map((e) => mkTab(e.id, e.name, e.icon)));
 
-    const eras = h("div", { class: "eras", id: "eras" });
-    const visible = this.activeFilter === "all" ? this.config.eras : this.config.eras.filter((e) => e.id === this.activeFilter);
-    append(eras, ...visible.map((era) => this.renderEra(era)));
+    const filteredGroups = filterTreasures(this.config.eras, this.progress, {
+      eraId: this.activeFilter,
+      status: this.unlockFilter,
+      query: this.searchQuery,
+    });
 
-    return h("main", { class: "app-main" }, summary, tabs, eras);
+    const eras = h("div", { class: "eras", id: "eras" });
+    if (filteredGroups.length === 0) {
+      append(
+        eras,
+        h(
+          "div",
+          { class: "p-8 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2" },
+          icon("search", "text-3xl text-slate-300 block mb-1"),
+          h("p", { class: "font-bold text-sm text-slate-700" }, "조건에 맞는 보물이 없습니다."),
+          h("p", { class: "text-xs text-slate-400" }, "해금 상태 필터를 바꾸거나 검색어를 지워보세요."),
+        ),
+      );
+    } else {
+      append(eras, ...filteredGroups.map(({ era, treasures }) => this.renderEra(era, treasures)));
+    }
+
+    return h("main", { class: "app-main" }, summary, filterBar, tabs, eras);
   }
 
-  private renderEra(era: EraCategory): HTMLElement {
+  private renderEra(era: EraCategory, treasures: Treasure[] = era.treasures): HTMLElement {
     const open = this.expanded.has(era.id);
     const done = era.treasures.filter((t) => this.progress.has(t.id)).length;
     const pct = Math.round((done / era.treasures.length) * 100);
     const grid = h("div", { class: "card-grid" });
-    for (const t of era.treasures) {
+    for (const t of treasures) {
       const rec = this.progress.get(t.id);
       let url: string | undefined;
       if (rec?.image) {
@@ -367,6 +428,11 @@ export class CodexApp {
   }
 
   // ───────────────────────── state changes ─────────────────────────
+
+  private setUnlockFilter(status: UnlockFilterStatus): void {
+    this.unlockFilter = status;
+    this.render();
+  }
 
   private filter(id: string): void {
     this.activeFilter = id;
